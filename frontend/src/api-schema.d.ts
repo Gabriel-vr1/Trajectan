@@ -700,6 +700,7 @@ export interface operations {
     parameters: {
       query?: {
         previous?: number;
+        reverse?: boolean;
       };
       header?: never;
       path: {
@@ -732,7 +733,9 @@ export interface operations {
   };
   investigate_api_matches__seed__investigations__seq__post: {
     parameters: {
-      query?: never;
+      query?: {
+        revision?: number;
+      };
       header?: never;
       path: {
         seed: number;

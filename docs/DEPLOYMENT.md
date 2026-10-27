@@ -36,7 +36,7 @@ The public demo currently allows bounded anonymous computational requests. Add s
 
 ## Existing Foundry project supplied by the owner
 
-The owner confirmed project **agentgate**, model deployment **gpt-4.1-mini**, deployment status **Succeeded**, and an active **Azure for Students** subscription. Credits, project endpoint, effective inference authorization and connectivity have not been verified by this runtime. Reuse this deployment; no additional Foundry project or model resource is needed for the implemented adapter.
+The owner confirmed project **agentgate**, model deployment **gpt-4.1-mini**, deployment status **Succeeded**, and an active **Azure for Students** subscription. The owner confirms $100 credits; account balance, project endpoint, effective inference authorization and connectivity have not been independently verified by this runtime. Reuse this deployment; no additional Foundry project or model resource is needed for the implemented adapter.
 
 The exact endpoint must be copied from the existing project's configuration (the project name alone does not establish its resource hostname). Configure it as `FOUNDRY_PROJECT_ENDPOINT`, set `FOUNDRY_MODEL=gpt-4.1-mini`, and bind an authorized managed/workload identity to the server. Permit the exact Foundry/identity hosts in the managed environment's network policy. Do not put credentials in chat, GitHub or frontend variables.
 
@@ -48,3 +48,5 @@ PYTHONPATH=backend .venv/bin/python scripts/verify_foundry.py
 ```
 
 This opt-in script performs real Agent Framework calls through Foundry for all three roles and independently validates the resulting claims. It uses the existing model quota and creates no cloud resources. Until this command succeeds against the real endpoint, only SDK compatibility—not live Agent Framework execution—is established. Then run a normal application investigation and retain its real trace to verify the controller integration too.
+
+The owner has configured a new published environment with `FOUNDRY_MODEL_DEPLOYMENT` and restricted `TRAJECTAN_FOUNDRY_KEY`. Both are supported by the adapter, subject to the exact proxy header binding. The current running task still sees revision 1. Follow **CLOUD_HANDOFF.md** in a new task before inference/deployment. No key should be copied into a dotenv file or chat.

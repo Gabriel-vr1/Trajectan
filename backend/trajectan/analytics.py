@@ -118,43 +118,76 @@ def scenario(state, r):
     )
 
 
-def attribution(previous, current, samples=128, seed=710):
-    # Ordered grouped replacement telescopes exactly; path-dependent, not Shapley.
+def paired_difference(before, after, target=0):
+    differences = [int(y == target) - int(x == target) for x, y in zip(before, after)]
+    n = len(differences)
+    mean = sum(differences) / n
+    se = (
+        math.sqrt(sum((x - mean) ** 2 for x in differences) / (n - 1) / n)
+        if n > 1
+        else 0
+    )
+    return dict(
+        mean=mean,
+        standard_error=se,
+        interval_95=[max(-1, mean - 1.96 * se), min(1, mean + 1.96 * se)],
+    )
+
+
+def attribution(previous, current, samples=128, seed=710, reverse=False):
+    if (
+        previous.match_id != current.match_id
+        or previous.model_version != current.model_version
+        or previous.sequence > current.sequence
+    ):
+        raise ValueError(
+            "Attribution requires ordered states from the same match and model"
+        )
     groups = [
         ("Score & clock", ["score", "second", "period", "phase"]),
         ("Personnel & tactics", ["teams"]),
         ("Possession & territory", ["possession", "possession_id", "ball"]),
     ]
+    if reverse:
+        groups.reverse()
     source = previous.model_copy(deep=True)
-    start = forecast(source, samples, seed)
+    start = outcomes(source, samples, seed)
     last = start
     contributions = []
     for label, fields in groups:
-        for f in fields:
-            setattr(source, f, getattr(current.model_copy(deep=True), f))
-        nxt = forecast(source, samples, seed)
+        for field in fields:
+            setattr(source, field, getattr(current.model_copy(deep=True), field))
+        nxt = outcomes(source, samples, seed)
+        difference = paired_difference(last, nxt)
         contributions.append(
             dict(
                 factor=label,
-                home=nxt["probabilities"]["home"] - last["probabilities"]["home"],
+                home=difference["mean"],
+                standard_error=difference["standard_error"],
+                interval_95=difference["interval_95"],
             )
         )
         last = nxt
-    end = forecast(current, samples, seed)
-    delta = end["probabilities"]["home"] - start["probabilities"]["home"]
-    residual = delta - sum(x["home"] for x in contributions)
+    end = outcomes(current, samples, seed)
+    delta = paired_difference(start, end)
+    residual = delta["mean"] - sum(x["home"] for x in contributions)
     return dict(
         previous_sequence=previous.sequence,
         source_sequence=current.sequence,
+        previous_hash=state_hash(previous),
+        source_hash=state_hash(current),
         model_version=MODEL,
-        method="ordered-group-replacement-v1",
+        method="ordered-group-replacement-v2",
+        order="reverse" if reverse else "forward",
         samples=samples,
         seed=seed,
         target="home",
-        delta=delta,
+        delta=delta["mean"],
+        delta_standard_error=delta["standard_error"],
+        delta_interval_95=delta["interval_95"],
         contributions=contributions,
         residual=residual,
         verified=abs(residual) < 1e-9,
-        uncertainty="Monte Carlo estimates; correlated paired streams. Factor confidence intervals not estimated.",
+        uncertainty="Paired Monte Carlo standard errors and approximate 95% normal intervals; correlated factors, not simultaneous confidence bounds. Zero observed variation does not establish population certainty.",
         limitation="Order-dependent model decomposition, not unique real-world causation.",
     )

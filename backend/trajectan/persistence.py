@@ -83,6 +83,6 @@ class Store:
                         Record.match_id == match_id,
                         Record.sequence <= sequence,
                     )
-                    .order_by(Record.sequence)
+                    .order_by(Record.sequence, Record.created_at, Record.key)
                 )
             ]

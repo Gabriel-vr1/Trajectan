@@ -127,7 +127,8 @@ class Jobs:
                 )
             )
 
-    def claim(self, key):
+    def claim_with_lease(self, key):
+        lease = time.time() + 300
         with self.store.session() as db:
             changed = db.execute(
                 update(Job)
@@ -136,19 +137,26 @@ class Jobs:
                     Job.status.in_(["queued", "running"]),
                     Job.lease_until < time.time(),
                 )
-                .values(status="running", lease_until=time.time() + 300)
+                .values(status="running", lease_until=lease)
             )
             db.commit()
             if changed.rowcount:
-                return db.get(Job, key).request
+                return db.get(Job, key).request, lease
         return None
 
-    def finish(self, key, result=None, error=None):
+    def claim(self, key):
+        acquired = self.claim_with_lease(key)
+        return acquired[0] if acquired else None
+
+    def finish(self, key, result=None, error=None, lease=None):
         with self.store.session() as db:
-            db.execute(
-                update(Job)
-                .where(Job.key == key)
-                .values(
+            statement = update(Job).where(Job.key == key)
+            if lease is not None:
+                statement = statement.where(
+                    Job.status == "running", Job.lease_until == lease
+                )
+            updated = db.execute(
+                statement.values(
                     status="failed" if error else "completed",
                     result=result,
                     error=error,
@@ -156,6 +164,7 @@ class Jobs:
                 )
             )
             db.commit()
+            return bool(updated.rowcount)
 
     async def relay(self):
         while True:
@@ -173,16 +182,18 @@ class Jobs:
                 key = await self.queue.receive()
                 if not key:
                     continue
-                request = self.claim(key)
-                if not request:
+                acquired = self.claim_with_lease(key)
+                if not acquired:
                     continue
+                request, lease = acquired
                 try:
                     result = await asyncio.wait_for(self.handler(request), timeout=240)
-                    self.finish(key, result=result)
+                    self.finish(key, result=result, lease=lease)
                 except Exception as e:
                     self.finish(
                         key,
                         error=str(e) if isinstance(e, ValueError) else type(e).__name__,
+                        lease=lease,
                     )
             except asyncio.CancelledError:
                 raise

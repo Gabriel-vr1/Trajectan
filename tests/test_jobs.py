@@ -54,3 +54,21 @@ def test_immutable_event_record_conflict(tmp_path):
     with pytest.raises(ValueError, match="Immutable record differs"):
         store.put("events:a", "events", "a", 0, [{"sequence": 2}])
     assert store.get("events:a") == [{"sequence": 1}]
+
+
+def test_expired_worker_cannot_overwrite_new_lease(tmp_path, monkeypatch):
+    import trajectan.jobs as module
+
+    async def handler(request):
+        return request
+
+    jobs = Jobs(Store("sqlite:///" + str(tmp_path / "leases.db")), handler)
+    jobs.submit("job", {"seed": 26})
+    monkeypatch.setattr(module.time, "time", lambda: 1000)
+    _, old = jobs.claim_with_lease("job")
+    monkeypatch.setattr(module.time, "time", lambda: 1400)
+    _, new = jobs.claim_with_lease("job")
+    assert old != new
+    assert not jobs.finish("job", result={"stale": True}, lease=old)
+    assert jobs.finish("job", result={"current": True}, lease=new)
+    assert jobs.get("job")["result"] == {"current": True}

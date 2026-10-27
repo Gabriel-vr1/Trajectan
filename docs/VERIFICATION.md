@@ -37,3 +37,14 @@ No live Foundry inference, Azure Service Bus exchange, Azure PostgreSQL connecti
 The owner reports an existing succeeded `agentgate` project / `gpt-4.1-mini` deployment and active Azure for Students subscription. This runtime's fresh readiness check still returned no Azure credential bindings, runtime variables or outbound identities. Exact endpoint, effective authorization, network reachability and credits remain required.
 
 `PYTHONPATH=backend .venv/bin/python scripts/verify_foundry.py` was invoked without configuration and correctly stopped with a missing-project-endpoint message. It made no inference call. After configuration, it performs actual Agent Framework execution for all three roles and validates the returned claims. Its successful real output is required before describing live Microsoft AI integration as verified.
+
+## Subsequent engineering milestone
+
+- **36 tests passed in 50.45s** with real local PostgreSQL enabled, covering the enhanced workflow, strict complete-claim publication, cache/config isolation, paired attribution intervals, immutable retry revisions, support/contradiction memory, SDK request/response execution with stubbed HTTP, and stale job-lease fencing.
+- A further **network-key/model-alias constructor test passed** after the owner reported the new environment variable names. It verifies the SDK's documented API-key override and actual Bearer header construction using a test placeholder. It is not a cloud authentication test.
+- **4 browser journeys passed in 39.5s**: full intelligence/scenario/recap flow, responsive history/reset, forward/reverse attribution with uncertainty, and late-response fixture isolation.
+- Updated TypeScript/Vite build passed. OpenAPI and frontend types were regenerated.
+- A real local PostgreSQL 16 integration test passed. The full application then passed `scripts/smoke.py` against PostgreSQL: 347 fixture events, checkpoint 168, published investigation, completed scenario, unchanged history, verified recap. This does not establish Azure PostgreSQL connectivity.
+- The template benchmark published validated results for all **3 held-out cases**, seeds 501–503, recorded in `evals/template-baseline.json`. Real single-model and three-role benchmark modes are implemented but have not run against live Foundry.
+- The latest container rebuild was blocked by the platform's automatic-approval-review usage limit and **was not executed**. The earlier successful container result applies to the previous checkpoint only.
+- Runtime readiness was rechecked after the owner updated the cloud configuration. This task still reports revision 1 with no Azure variables, secret bindings or identities. The live verification command correctly stopped at `Missing FOUNDRY_PROJECT_ENDPOINT`, before any network request. See `CLOUD_HANDOFF.md` for the precise new-task procedure and header compatibility check.

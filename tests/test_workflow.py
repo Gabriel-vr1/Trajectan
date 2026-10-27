@@ -88,3 +88,40 @@ def test_invalid_foundry_configuration_preserves_local_workflow(tmp_path, monkey
     workflow = Workflow(Store("sqlite:///" + str(tmp_path / "test.db")))
     assert not workflow.provider.enabled
     assert "configuration unavailable" in workflow.provider.configuration_error
+
+
+def test_execution_identity_and_revision_isolation(tmp_path, fixture):
+    events, states = fixture
+    store = Store("sqlite:///" + str(tmp_path / "test.db"))
+    offline = Workflow(store, Offline())
+    fault = Workflow(store, Fault())
+    assert offline.execution_key(states[300]) != fault.execution_key(states[300])
+    assert fault.execution_key(states[300]) != fault.execution_key(states[300], 1)
+    old = asyncio.run(fault.run(states, events, 300))
+    revision = asyncio.run(fault.run(states, events, 300, revision=1))
+    assert old["investigation_id"] != revision["investigation_id"]
+    assert store.get(old["investigation_id"]) == old
+
+
+def test_structured_output_error_retries_once(tmp_path, fixture):
+    class Invalid:
+        enabled = True
+
+        def __init__(self):
+            self.calls = 0
+
+        async def ask(self, *args):
+            self.calls += 1
+            return Plan.model_validate(
+                {"tools": ["not-allowlisted"], "reason": "invalid"}
+            )
+
+    provider = Invalid()
+    events, states = fixture
+    result = asyncio.run(
+        Workflow(Store("sqlite:///" + str(tmp_path / "invalid.db")), provider).run(
+            states, events, 300
+        )
+    )
+    assert result["status"] == "failed" and provider.calls == 2
+    assert len([t for t in result["trace"] if t["stage"] == "agent_execution"]) == 2

@@ -16,7 +16,7 @@ def facts(state, forecast):
     )
 
 
-def validate(draft: Draft, state, forecast, events):
+def validate(draft: Draft, state, forecast, events, require_complete=False):
     expected = facts(state, forecast)
     valid_ids = {
         e.event_id
@@ -32,6 +32,11 @@ def validate(draft: Draft, state, forecast, events):
         errors.append("Forecast state mismatch")
     if not draft.claims:
         errors.append("No evidence claims")
+    metrics = [c.metric for c in draft.claims]
+    if len(metrics) != len(set(metrics)):
+        errors.append("Duplicate factual claim")
+    if require_complete and set(metrics) != set(expected):
+        errors.append("Publication requires the complete verified fact set")
     for c in draft.claims:
         if c.source_sequence != state.sequence:
             errors.append("Claim state mismatch")
@@ -42,7 +47,7 @@ def validate(draft: Draft, state, forecast, events):
     return dict(
         valid=not errors,
         errors=errors,
-        validator_version="strict-claims-1",
+        validator_version="strict-claims-2",
         source_sequence=state.sequence,
     )
 

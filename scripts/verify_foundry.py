@@ -1,71 +1,72 @@
-"""Opt-in real Foundry/Agent Framework smoke test. Uses server-side identity only.
-Runs three real role inferences; consumes existing model quota, creates no resources.
+"""Opt-in real three-role Foundry/controller integration; provisions no resources.
+Requires server-side identity and the exact existing Foundry project endpoint.
 """
 
+import argparse
 import asyncio
 import json
 import os
-from trajectan.agents import Foundry, Plan, Review
-from trajectan.analytics import forecast
-from trajectan.domain import Draft, Claim, initial
+import tempfile
+from pathlib import Path
+from trajectan.agents import Foundry, Workflow
+from trajectan.domain import initial
+from trajectan.persistence import Store
 from trajectan.simulation import generate
-from trajectan.validation import facts, validate
 
 
-async def main():
+async def main(output):
     if not os.getenv("FOUNDRY_PROJECT_ENDPOINT"):
         raise SystemExit(
-            "Set the exact agentgate project endpoint through server-side environment configuration. No secrets should be entered in chat."
+            "Missing FOUNDRY_PROJECT_ENDPOINT for agentgate. Configure server-side identity and network access; do not share keys or tokens in chat."
         )
-    os.environ.setdefault("FOUNDRY_MODEL", "gpt-4.1-mini")
+    os.environ.setdefault(
+        "FOUNDRY_MODEL", os.getenv("FOUNDRY_MODEL_DEPLOYMENT", "gpt-4.1-mini")
+    )
     provider = Foundry()
     try:
         events, states = generate(initial(26))
-        state = states[300]
-        prediction = forecast(state, 32)
-        draft = Draft(
-            claims=[
-                Claim(metric=k, value=v, source_sequence=300)
-                for k, v in facts(state, prediction).items()
-            ]
+        checkpoint = next(e.sequence for e in reversed(events) if e.outcome == "goal")
+        with tempfile.TemporaryDirectory(prefix="trajectan-foundry-") as directory:
+            store = Store("sqlite:///" + str(Path(directory) / "verification.db"))
+            result = await Workflow(store, provider).run(states, events, checkpoint)
+            store.engine.dispose()
+        roles = sorted(
+            {t["inference"]["role"] for t in result["trace"] if t.get("inference")}
         )
-        plan = await provider.ask(
-            "Investigation",
-            dict(
-                state_sequence=300,
-                facts=facts(state, prediction),
-                instruction="Choose a short useful investigation plan for this synthetic checkpoint.",
-            ),
-            Plan,
+        complete = (
+            result["status"] == "published"
+            and result["validation"]["valid"]
+            and set(roles) == {"Investigation", "Evidence & Reasoning", "Narrative"}
         )
-        review = await provider.ask(
-            "Evidence & Reasoning",
-            dict(
-                source_sequence=300,
-                verified_facts=facts(state, prediction),
-                claims=draft.model_dump(),
-            ),
-            Review,
-        )
-        narrative = await provider.ask("Narrative", draft.model_dump(), Draft)
-        report = validate(narrative, state, prediction, events[:300])
-        result = {
-            "execution": "real-foundry-agent-framework",
-            "project": "agentgate",
+        report = {
+            "live_inference_observed": bool(roles),
+            "complete_workflow_verified": complete,
             "deployment": os.environ["FOUNDRY_MODEL"],
-            "roles_exercised": ["Investigation", "Evidence & Reasoning", "Narrative"],
-            "plan_decision": plan.decision,
-            "review_verdict": review.verdict,
-            "deterministic_validation": report,
+            "roles_exercised": roles,
+            "result": result,
         }
-        print(json.dumps(result, indent=2))
-        if not report["valid"]:
+        if output:
+            Path(output).write_text(json.dumps(report, indent=2) + "\n")
+        print(
+            json.dumps(
+                {k: v for k, v in report.items() if k != "result"}
+                | {"status": result["status"], "report": output},
+                indent=2,
+            )
+        )
+        if not complete:
             raise SystemExit(
-                "Real inference completed, but narrative validation failed. Do not claim successful publication."
+                "The complete three-role workflow was not verified. Inspect the recorded terminal state and trace; no success claim is justified."
             )
     finally:
         await provider.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        default=None,
+        help="Optional local JSON evidence path; contains no credentials.",
+    )
+    asyncio.run(main(parser.parse_args().output))

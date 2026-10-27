@@ -181,3 +181,35 @@ def test_nonfinite_and_cross_match_claims_rejected(fixture):
     )
     assert not validate(d, s, f | {"match_id": "another-match"}, events)["valid"]
     assert not validate(d, s, f | {"state_hash": "tampered"}, events)["valid"]
+
+
+def test_attribution_paired_intervals_and_order(fixture):
+    _, states = fixture
+    same = attribution(states[300], states[300], 32)
+    assert same["delta_standard_error"] == 0
+    assert all(
+        c["standard_error"] == 0 and c["interval_95"] == [0, 0]
+        for c in same["contributions"]
+    )
+    forward = attribution(states[280], states[300], 32)
+    reverse = attribution(states[280], states[300], 32, reverse=True)
+    assert forward["delta"] == reverse["delta"]
+    assert forward["verified"] and reverse["verified"]
+    assert all(
+        c["interval_95"][0] <= c["home"] <= c["interval_95"][1]
+        for c in forward["contributions"]
+    )
+    with pytest.raises(ValueError):
+        attribution(states[300], states[280], 32)
+
+
+def test_incomplete_publication_claims_and_duplicate_claims(fixture):
+    events, states = fixture
+    s = states[-1]
+    f = forecast(s, 32)
+    claim = Claim(metric="home_score", value=s.score[0], source_sequence=s.sequence)
+    assert validate(Draft(claims=[claim]), s, f, events)["valid"]
+    assert not validate(Draft(claims=[claim]), s, f, events, require_complete=True)[
+        "valid"
+    ]
+    assert not validate(Draft(claims=[claim, claim]), s, f, events)["valid"]

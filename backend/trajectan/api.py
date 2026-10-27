@@ -22,6 +22,7 @@ from .persistence import Store
 from .agents import Workflow
 from .validation import facts, validate, render
 from .jobs import Jobs, ServiceBusQueue
+from .memory import recap_memory
 
 
 @lru_cache(maxsize=3)
@@ -53,7 +54,9 @@ async def lifespan(app):
         seq = request["sequence"]
         events, states, state = pinned(seed, seq)
         if request["kind"] == "investigation":
-            return await app.state.workflow.run(states, events, seq)
+            return await app.state.workflow.run(
+                states, events, seq, request.get("revision", 0)
+            )
         payload = ScenarioRequest.model_validate(request["payload"])
         result = await asyncio.to_thread(scenario, state, payload)
         return app.state.store.put(
@@ -93,9 +96,13 @@ def health():
     return dict(
         status="degraded"
         if not app.state.workflow.provider.enabled
+        else "inference-observed"
+        if getattr(app.state.workflow.provider, "successful_calls", 0)
         else "configured-unverified",
         model="tactical-1.0",
-        ai="configured; live call required"
+        ai="Foundry API responses observed; publication remains independently validated"
+        if getattr(app.state.workflow.provider, "successful_calls", 0)
+        else "configured; live call required"
         if app.state.workflow.provider.enabled
         else "unavailable; deterministic development fallback",
         database="sqlite-development"
@@ -106,6 +113,7 @@ def health():
         ai_configuration_error=getattr(
             app.state.workflow.provider, "configuration_error", None
         ),
+        inference_calls=getattr(app.state.workflow.provider, "successful_calls", 0),
         synthetic=True,
     )
 
@@ -138,11 +146,13 @@ def get_forecast(seed: int, seq: int):
 
 
 @app.get("/api/matches/{seed}/attribution/{seq}")
-def get_attribution(seed: int, seq: int, previous: int = Query(0, ge=0)):
+def get_attribution(
+    seed: int, seq: int, previous: int = Query(0, ge=0), reverse: bool = False
+):
     _, states, state = pinned(seed, seq)
     if previous > seq:
         raise HTTPException(422, "Previous state must precede selected state")
-    return attribution(states[previous], state, 64)
+    return attribution(states[previous], state, 64, reverse=reverse)
 
 
 def submit(key, request):
@@ -153,11 +163,11 @@ def submit(key, request):
 
 
 @app.post("/api/matches/{seed}/investigations/{seq}")
-async def investigate(seed: int, seq: int):
-    events, states, _ = pinned(seed, seq)
+async def investigate(seed: int, seq: int, revision: int = Query(0, ge=0, le=2)):
+    events, states, state = pinned(seed, seq)
     return submit(
-        f"investigation:demo-{seed}:{seq}",
-        dict(kind="investigation", seed=seed, sequence=seq),
+        app.state.workflow.execution_key(state, revision),
+        dict(kind="investigation", seed=seed, sequence=seq, revision=revision),
     )
 
 
@@ -215,6 +225,7 @@ def recap(
     report = validate(draft, s, f, events[:seq])
     return dict(
         **render(s, f, draft, profile),
+        **recap_memory(app.state.store.list("investigation", s.match_id, seq), seq),
         validation=report,
         kind="full-time"
         if s.phase == "finished"

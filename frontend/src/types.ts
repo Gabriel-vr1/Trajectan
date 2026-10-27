@@ -9,12 +9,22 @@ export type Narrative = {
   profile: string;
   execution_mode?: string;
   moments?: Event[];
+  investigation_refs?: string[];
+  revisions?: {
+    hypothesis: string;
+    previous_assessment: string;
+    assessment: string;
+    previous_sequence: number;
+    source_sequence: number;
+    basis: string;
+  }[];
 };
 export type Investigation = {
   investigation_id: string;
   source_sequence: number;
   status: string;
   execution_mode: string;
+  revision?: number;
   evidence_ids: string[];
   tool_count: number;
   trace: {
@@ -22,6 +32,7 @@ export type Investigation = {
     operation: string;
     detail: string;
     duration_ms: number;
+    inference?: { response_id: string; deployment: string; sdk: string };
   }[];
   narratives: Record<string, Narrative>;
   validation: { valid: boolean; errors: string[] } | null;
@@ -41,7 +52,13 @@ export type Attribution = {
   previous_sequence: number;
   source_sequence: number;
   delta: number;
-  contributions: { factor: string; home: number }[];
+  contributions: {
+    factor: string;
+    home: number;
+    standard_error?: number;
+    interval_95?: number[];
+  }[];
+  order?: string;
   residual: number;
   verified: boolean;
   uncertainty: string;

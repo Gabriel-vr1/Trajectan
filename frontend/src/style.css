@@ -879,3 +879,14 @@ svg [role="button"] {
     font-size: 10px;
   }
 }
+
+.factor-uncertainty {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.trace li small {
+  display: block;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}

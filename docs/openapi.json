@@ -205,6 +205,16 @@
               "default": 0,
               "title": "Previous"
             }
+          },
+          {
+            "name": "reverse",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Reverse"
+            }
           }
         ],
         "responses": {
@@ -250,6 +260,18 @@
             "schema": {
               "type": "integer",
               "title": "Seq"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2,
+              "minimum": 0,
+              "default": 0,
+              "title": "Revision"
             }
           }
         ],

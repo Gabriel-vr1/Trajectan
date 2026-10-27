@@ -89,3 +89,50 @@ test("playback, historical cursor, fixture reset and responsive layout", async (
     fullPage: true,
   });
 });
+
+test("attribution intervals and alternate factor order remain reconciled", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Half-time", exact: true }).click();
+  await page.getByRole("button", { name: "Explain forecast change" }).click();
+  await expect(
+    page.getByRole("heading", { name: "What moved the home-win forecast?" }),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.locator(".factor-uncertainty")).toContainText(
+    "95% interval",
+  );
+  await expect(page.locator(".attribution")).toContainText("Reconciled");
+  await page
+    .getByRole("button", { name: "Compare reverse factor order" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Compare forward factor order" }),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.locator(".attribution")).toContainText("Reconciled");
+});
+
+test("a late scenario response cannot change a different fixture", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Half-time", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Scenario Lab", exact: false })
+    .click();
+  await page.route("**/api/jobs/**", async (route) => {
+    const response = await route.fetch();
+    await new Promise((r) => setTimeout(r, 1000));
+    await route.fulfill({ response });
+  });
+  await page.getByRole("button", { name: "Run paired simulation" }).click();
+  await page.getByLabel("Seeded fixture").selectOption("77");
+  await expect(page.getByText("PLAYBACK HEAD · STATE 0")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "With intervention" }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Run paired simulation" }),
+  ).toBeEnabled();
+});

@@ -3,14 +3,18 @@ Without Foundry credentials this runs a transparent rule-based development basel
 """
 
 import asyncio
+import hashlib
+from contextvars import ContextVar
 import json
 import os
 import time
 from datetime import datetime, timezone
 from typing import Literal
-from pydantic import Field
+from pydantic import Field, ValidationError
 from .domain import Strict, Draft, Claim, ScenarioRequest
 from .analytics import forecast, attribution, scenario
+from .simulation import state_hash
+from .memory import hypotheses, relate
 from .validation import validate, facts, render
 
 
@@ -37,20 +41,58 @@ class Review(Strict):
 
 
 class Foundry:
+    execution_mode = "foundry-agent-framework"
+
     def __init__(self):
-        self.enabled = bool(
-            os.getenv("FOUNDRY_PROJECT_ENDPOINT") and os.getenv("FOUNDRY_MODEL")
+        self.model = (
+            os.getenv("FOUNDRY_MODEL")
+            or os.getenv("FOUNDRY_MODEL_DEPLOYMENT")
+            or "gpt-4.1-mini"
+        )
+        self.enabled = bool(os.getenv("FOUNDRY_PROJECT_ENDPOINT"))
+        self.auth_mode = (
+            "network-key" if os.getenv("TRAJECTAN_FOUNDRY_KEY") else "entra"
         )
         self.agents = {}
+        self.successful_calls = 0
+        self.receipts = []
+        self.last_receipt = ContextVar("inference_receipt", default=None)
+        self.cache_identity = hashlib.sha256(
+            json.dumps(
+                {
+                    "endpoint": os.getenv("FOUNDRY_PROJECT_ENDPOINT"),
+                    "model": self.model,
+                    "auth_mode": self.auth_mode,
+                    "sdk": "1.23.0/1.15.0",
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:16]
         if self.enabled:
             from agent_framework import Agent
             from agent_framework.foundry import FoundryChatClient
             from azure.identity.aio import DefaultAzureCredential
 
             self.credential = DefaultAzureCredential()
+            project = None
+            if self.auth_mode == "network-key":
+                from azure.ai.projects.aio import AIProjectClient
+
+                class NetworkKeyProjectClient(AIProjectClient):
+                    def get_openai_client(self, **kwargs):
+                        # SDK-supported override. The network-bound variable may be
+                        # a proxy placeholder; pass it unchanged and never log it.
+                        kwargs["api_key"] = os.environ["TRAJECTAN_FOUNDRY_KEY"]
+                        return super().get_openai_client(**kwargs)
+
+                project = NetworkKeyProjectClient(
+                    endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+                    credential=self.credential,
+                )
             client = FoundryChatClient(
                 project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-                model=os.environ["FOUNDRY_MODEL"],
+                project_client=project,
+                model=self.model,
                 credential=self.credential,
             )
             self.client = client
@@ -73,6 +115,8 @@ class Foundry:
             await self.credential.close()
 
     async def ask(self, role, payload, schema):
+        started = time.monotonic()
+        self.last_receipt.set(None)
         response = await asyncio.wait_for(
             self.agents[role].run(
                 json.dumps(dict(input=payload, schema=schema.model_json_schema())),
@@ -80,6 +124,19 @@ class Foundry:
             ),
             timeout=30,
         )
+        receipt = dict(
+            role=role,
+            response_id=response.response_id,
+            duration_ms=round((time.monotonic() - started) * 1000, 2),
+            deployment=self.model,
+            auth_mode=self.auth_mode,
+            sdk="agent-framework-core/1.23.0",
+            at=datetime.now(timezone.utc).isoformat(),
+        )
+        self.last_receipt.set(receipt)
+        self.receipts.append(receipt)
+        self.receipts = self.receipts[-100:]
+        self.successful_calls += 1
         return schema.model_validate_json(response.text)
 
 
@@ -106,20 +163,28 @@ class Workflow:
                     type(error).__name__ + ": Foundry configuration unavailable"
                 )
 
-    async def run(self, states, events, seq):
+    @property
+    def execution_mode(self):
+        return (
+            getattr(self.provider, "execution_mode", "model-provider-test-double")
+            if self.provider.enabled
+            else "deterministic-development-fallback"
+        )
+
+    def execution_key(self, state, revision=0):
+        identity = getattr(self.provider, "cache_identity", self.execution_mode)
+        return f"investigation:v2:{state.match_id}:{state.sequence}:{state_hash(state)[:12]}:{self.execution_mode}:{identity}:r{revision}"
+
+    async def run(self, states, events, seq, revision=0):
         state = states[seq]
-        key = f"investigation:{state.match_id}:{seq}"
+        key = self.execution_key(state, revision)
         existing = self.store.get(key)
         if existing:
             return existing
         trace = []
         tools = {}
         calls = 0
-        mode = (
-            "foundry-agent-framework"
-            if self.provider.enabled
-            else "deterministic-development-fallback"
-        )
+        mode = self.execution_mode
 
         def record(stage, operation, detail="", elapsed=0):
             trace.append(
@@ -144,12 +209,15 @@ class Workflow:
                         f"Structured response; attempt {attempt + 1}",
                         time.monotonic() - started,
                     )
+                    receipt = getattr(self.provider, "last_receipt", None)
+                    if receipt is not None and receipt.get() is not None:
+                        trace[-1]["inference"] = dict(receipt.get())
                     return answer
-                except TimeoutError:
+                except (TimeoutError, ValidationError) as error:
                     record(
                         "agent_execution",
                         role,
-                        f"Timeout; attempt {attempt + 1}",
+                        f"{type(error).__name__}; attempt {attempt + 1}",
                         time.monotonic() - started,
                     )
                     if attempt:
@@ -314,7 +382,9 @@ class Workflow:
                     else baseline
                 )
                 record("validating", "validate_evidence")
-                validation = validate(draft, state, fc, events[:seq])
+                validation = validate(
+                    draft, state, fc, events[:seq], require_complete=True
+                )
                 if not validation["valid"] and self.provider.enabled:
                     record(
                         "narrating",
@@ -328,7 +398,9 @@ class Workflow:
                         ),
                         Draft,
                     )
-                    validation = validate(draft, state, fc, events[:seq])
+                    validation = validate(
+                        draft, state, fc, events[:seq], require_complete=True
+                    )
                     record(
                         "validating",
                         "validate_repair",
@@ -365,9 +437,17 @@ class Workflow:
             != hypothesis["favored"]
             else "extends"
         )
+        assessments = (
+            hypotheses(state, events, tools["get_forecast"])
+            if status == "published"
+            else []
+        )
+        relationships = relate(assessments, previous)
         result = dict(
             investigation_id=key,
             source_sequence=seq,
+            source_hash=state_hash(state),
+            revision=revision,
             match_id=state.match_id,
             execution_mode=mode,
             status=status,
@@ -377,15 +457,19 @@ class Workflow:
             observations=tools,
             validation=validation,
             hypothesis=hypothesis,
-            relations=[
-                dict(
-                    type=relation,
-                    target=previous[-1]["investigation_id"],
-                    evidence=[e.event_id for e in window],
-                )
-            ]
-            if previous and hypothesis
-            else [],
+            hypotheses=assessments,
+            relations=relationships
+            + (
+                [
+                    dict(
+                        type=relation,
+                        target=previous[-1]["investigation_id"],
+                        evidence=[e.event_id for e in window],
+                    )
+                ]
+                if previous and hypothesis
+                else []
+            ),
             narratives={},
         )
         if status == "published":

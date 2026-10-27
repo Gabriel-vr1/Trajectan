@@ -76,6 +76,17 @@ function AttributionView({ data }: { data: Attribution }) {
           </b>
         </div>
       ))}
+      <div className="factor-uncertainty">
+        {data.contributions
+          .filter((c) => c.interval_95)
+          .map((c) => (
+            <small key={c.factor}>
+              {c.factor}: 95% interval{" "}
+              {c.interval_95!.map((v) => (v * 100).toFixed(1)).join(" to ")} pp;
+              paired SE {((c.standard_error ?? 0) * 100).toFixed(1)} pp.
+            </small>
+          ))}
+      </div>
       <p>
         <b>Net change {(data.delta * 100).toFixed(1)} pp</b> · residual{" "}
         {(data.residual * 100).toFixed(6)} pp ·{" "}
@@ -116,7 +127,8 @@ function App() {
   const seq = cursor ?? head,
     fixture = useRef(seed),
     requested = useRef(new Set<string>()),
-    selection = useRef(seq);
+    selection = useRef(seq),
+    operation = useRef(0);
   fixture.current = seed;
   selection.current = seq;
   useEffect(() => {
@@ -134,6 +146,7 @@ function App() {
     setRecap(null);
     setError("");
     setBusy("");
+    operation.current += 1;
     requested.current.clear();
     api<{ events: Event[]; initial: State }>(`/matches/${seed}`)
       .then((r) => {
@@ -151,7 +164,7 @@ function App() {
     api<{ ai: string }>("/health")
       .then((h) => setHealth(h.ai))
       .catch(() => setHealth("API unavailable"));
-  }, []);
+  }, [busy]);
   useEffect(() => {
     if (!playing || !events.length) return;
     const stream = new EventSource(`/api/matches/${seed}/stream?after=${head}`);
@@ -220,6 +233,7 @@ function App() {
     body: unknown,
     label: string,
   ): Promise<T> {
+    const ticket = ++operation.current;
     setBusy(label);
     setError("");
     try {
@@ -228,7 +242,8 @@ function App() {
         body,
       );
       if (!j.job_id) return j as T;
-      for (let n = 0; n < 180; n++) {
+      for (let n = 0; n < 520; n++) {
+        if (ticket !== operation.current) throw Error("Selection changed");
         if (j.status === "completed") return j.result!;
         if (j.status === "failed")
           throw Error(
@@ -241,14 +256,14 @@ function App() {
         "Job is still running. Reopen this checkpoint to retrieve its result.",
       );
     } finally {
-      setBusy("");
+      if (ticket === operation.current) setBusy("");
     }
   }
-  async function investigate(at = seq, automatic = false) {
+  async function investigate(at = seq, automatic = false, revision = 0) {
     const currentSeed = seed;
     try {
       const result = await poll<Investigation>(
-        `/matches/${seed}/investigations/${at}`,
+        `/matches/${seed}/investigations/${at}?revision=${revision}`,
         {},
         "Investigating pinned evidence…",
       );
@@ -261,7 +276,7 @@ function App() {
         if (!automatic) setTab(1);
       }
     } catch (e) {
-      setError((e as Error).message);
+      if (fixture.current === currentSeed) setError((e as Error).message);
     }
   }
   useEffect(() => {
@@ -278,21 +293,22 @@ function App() {
       void investigate(head, true);
     }
   }, [head, busy]);
-  async function explain() {
+  async function explain(reverse = false) {
+    const ticket = ++operation.current;
     const pinnedSeed = seed,
       pinnedSeq = seq;
     setBusy("Attributing forecast change…");
     setError("");
     try {
       const result = await api<Attribution>(
-        `/matches/${seed}/attribution/${seq}?previous=${Math.max(0, seq - 20)}`,
+        `/matches/${seed}/attribution/${seq}?previous=${Math.max(0, seq - 20)}&reverse=${reverse}`,
       );
       if (fixture.current === pinnedSeed && selection.current === pinnedSeq)
         setDecomposition(result);
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setBusy("");
+      if (ticket === operation.current) setBusy("");
     }
   }
   async function simulate() {
@@ -320,7 +336,7 @@ function App() {
       if (fixture.current === currentSeed && selection.current === source)
         setBranch(result);
     } catch (e) {
-      setError((e as Error).message);
+      if (fixture.current === currentSeed) setError((e as Error).message);
     }
   }
   useEffect(() => {
@@ -692,8 +708,11 @@ function App() {
                   Explore a tactical alternative →
                 </button>
                 <small>
-                  Local analysis uses deterministic tools and templates. No live
-                  AI execution is claimed.
+                  {latest?.execution_mode === "foundry-agent-framework"
+                    ? latest.status === "published"
+                      ? "This published investigation used Foundry through Agent Framework. Inspect response receipts and validation in its trace."
+                      : "This Foundry workflow did not publish a verified narrative. Its trace records actual attempts and failures."
+                    : "Local analysis uses deterministic tools and templates. No live AI execution is claimed."}
                 </small>
               </aside>
             </div>
@@ -707,10 +726,27 @@ function App() {
                   <span className="badge light">MODEL ESTIMATE</span>
                 </div>
                 {prob(fc)}
-                <button disabled={!!busy || seq === 0} onClick={explain}>
+                <button
+                  disabled={!!busy || seq === 0}
+                  onClick={() => explain()}
+                >
                   Explain forecast change →
                 </button>
-                {decomposition && <AttributionView data={decomposition} />}
+                {decomposition && (
+                  <>
+                    <AttributionView data={decomposition} />
+                    <button
+                      disabled={!!busy}
+                      onClick={() => explain(decomposition.order !== "reverse")}
+                    >
+                      Compare{" "}
+                      {decomposition.order === "reverse"
+                        ? "forward"
+                        : "reverse"}{" "}
+                      factor order
+                    </button>
+                  </>
+                )}
                 <div
                   className="chart"
                   role="img"
@@ -837,6 +873,21 @@ function App() {
                     State {visibleFocus.source_sequence} · {visibleFocus.status}
                   </h2>
                   <p className="notice">{visibleFocus.execution_mode}</p>
+                  {visibleFocus.status !== "published" &&
+                    (visibleFocus.revision ?? 0) < 2 && (
+                      <button
+                        disabled={!!busy}
+                        onClick={() =>
+                          investigate(
+                            visibleFocus.source_sequence,
+                            false,
+                            (visibleFocus.revision ?? 0) + 1,
+                          )
+                        }
+                      >
+                        Retry as a new revision
+                      </button>
+                    )}
                   <p>
                     {visibleFocus.narratives[profile]?.text ??
                       "No verified narrative was published for this investigation."}
@@ -849,6 +900,12 @@ function App() {
                         <p>
                           {t.detail}{" "}
                           {t.duration_ms > 0 && `· ${t.duration_ms} ms`}
+                          {t.inference && (
+                            <small>
+                              Foundry response {t.inference.response_id} ·{" "}
+                              {t.inference.deployment} · {t.inference.sdk}
+                            </small>
+                          )}
                         </p>
                       </li>
                     ))}
@@ -1114,6 +1171,24 @@ function App() {
             </section>
             <section className="paper recap">
               <h2>Defining moments</h2>
+              {!!recap?.revisions?.length && (
+                <section>
+                  <h3>How the interpretation changed</h3>
+                  {recap.revisions.map((r, i) => (
+                    <p key={i}>
+                      <button onClick={() => seek(r.previous_sequence)}>
+                        State {r.previous_sequence}
+                      </button>{" "}
+                      {r.hypothesis.replaceAll("_", " ")}:{" "}
+                      {r.previous_assessment} → {r.assessment} at{" "}
+                      <button onClick={() => seek(r.source_sequence)}>
+                        state {r.source_sequence}
+                      </button>
+                      . {r.basis}
+                    </p>
+                  ))}
+                </section>
+              )}
               {recap?.moments?.length ? (
                 recap.moments.map((e) => (
                   <button
