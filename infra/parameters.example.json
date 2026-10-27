@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {"value": "spaincentral"},
+    "prefix": {"value": "trajectan-gvr0710"},
+    "containerImage": {"value": "PUBLIC_REGISTRY/trajectan@sha256:REPLACE_WITH_TESTED_DIGEST"},
+    "postgresPassword": {"value": "REPLACE_LOCALLY_NEVER_COMMIT"},
+    "appDatabasePassword": {"value": "REPLACE_WITH_DIFFERENT_PASSWORD_LOCALLY"},
+    "foundryProjectEndpoint": {"value": "https://agentgate-foundry-gvr0710.services.ai.azure.com/api/projects/agentgate"},
+    "foundryResourceName": {"value": "agentgate-foundry-gvr0710"},
+    "foundryResourceGroup": {"value": "REPLACE_WITH_EXISTING_FOUNDRY_RESOURCE_GROUP"},
+    "deployApi": {"value": false},
+    "deployStaticWebApp": {"value": false},
+    "inferenceCallLimit": {"value": 100}
+  }
+}

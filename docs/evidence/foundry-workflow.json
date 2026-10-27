@@ -1,0 +1,569 @@
+{
+  "live_inference_observed": true,
+  "complete_workflow_verified": true,
+  "deployment": "gpt-4.1-mini",
+  "roles_exercised": [
+    "Evidence & Reasoning",
+    "Investigation",
+    "Narrative"
+  ],
+  "result": {
+    "investigation_id": "investigation:v2:demo-26:306:5b5c953ec80c:foundry-agent-framework:c795c2417b0e3345:r0",
+    "source_sequence": 306,
+    "source_hash": "5b5c953ec80cb51b7cba3965bd0366db8b41467fa496a54ad7ba6de9bb1a7012",
+    "revision": 0,
+    "match_id": "demo-26",
+    "execution_mode": "foundry-agent-framework",
+    "status": "published",
+    "trace": [
+      {
+        "stage": "queued",
+        "operation": "pin_state",
+        "detail": "State 306; execution: foundry-agent-framework",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:47.681575+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "investigating",
+        "operation": "planning_round",
+        "detail": "1",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:47.681600+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "agent_execution",
+        "operation": "Investigation",
+        "detail": "Structured response; attempt 1",
+        "duration_ms": 2904.07,
+        "at": "2026-10-27T19:19:50.585861+00:00",
+        "source_sequence": 306,
+        "inference": {
+          "role": "Investigation",
+          "response_id": "resp_089da5c49ad2b820006ae0f9542fe88194a705319f1a762e31",
+          "duration_ms": 2903.65,
+          "deployment": "gpt-4.1-mini",
+          "auth_mode": "network-key",
+          "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
+          "usage": {
+            "openai.reasoning_tokens": 0,
+            "total_token_count": 7198,
+            "cache_creation_input_token_count": 0,
+            "openai.cache_write_tokens": 0,
+            "openai.cached_input_tokens": 6912,
+            "output_token_count": 121,
+            "reasoning_output_token_count": 0,
+            "input_token_count": 7077,
+            "cache_read_input_token_count": 6912
+          },
+          "sdk": "agent-framework-core/1.23.0",
+          "at": "2026-10-27T19:19:50.585717+00:00"
+        }
+      },
+      {
+        "stage": "investigating",
+        "operation": "Investigation",
+        "detail": "The latest pinned event is a goal by team 1 at sequence 306, which likely impacts the model's outcome forecast. To assess why this development matters, we should get the updated forecast and explain the forecast change caused by this goal.",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:50.586045+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "investigating",
+        "operation": "get_forecast",
+        "detail": "completed",
+        "duration_ms": 200.86,
+        "at": "2026-10-27T19:19:50.786921+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "investigating",
+        "operation": "explain_forecast_change",
+        "detail": "completed",
+        "duration_ms": 514.53,
+        "at": "2026-10-27T19:19:51.301472+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "evidence_review",
+        "operation": "handoff",
+        "detail": "Independent evidence review",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:51.301521+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "agent_execution",
+        "operation": "Evidence & Reasoning",
+        "detail": "Structured response; attempt 1",
+        "duration_ms": 1762.73,
+        "at": "2026-10-27T19:19:53.064259+00:00",
+        "source_sequence": 306,
+        "inference": {
+          "role": "Evidence & Reasoning",
+          "response_id": "resp_0d42d9af46479a87006ae0f957717881909b8f30af2a4add96",
+          "duration_ms": 1762.65,
+          "deployment": "gpt-4.1-mini",
+          "auth_mode": "network-key",
+          "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
+          "usage": {
+            "openai.reasoning_tokens": 0,
+            "total_token_count": 869,
+            "cache_creation_input_token_count": 0,
+            "openai.cache_write_tokens": 0,
+            "openai.cached_input_tokens": 0,
+            "output_token_count": 56,
+            "reasoning_output_token_count": 0,
+            "input_token_count": 813,
+            "cache_read_input_token_count": 0
+          },
+          "sdk": "agent-framework-core/1.23.0",
+          "at": "2026-10-27T19:19:53.064216+00:00"
+        }
+      },
+      {
+        "stage": "evidence_review",
+        "operation": "review",
+        "detail": "supported: The evidence provides detailed probabilistic forecast data along with changes explained by a methodical model decomposition using Monte Carlo standard errors and confidence intervals. The forecast and explanation are clearly documented, verified, and note model limitations, thus supporting the claim",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:53.064269+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "narrating",
+        "operation": "handoff",
+        "detail": "Narrative",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:53.064370+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "agent_execution",
+        "operation": "Narrative",
+        "detail": "Structured response; attempt 1",
+        "duration_ms": 4282.96,
+        "at": "2026-10-27T19:19:57.347387+00:00",
+        "source_sequence": 306,
+        "inference": {
+          "role": "Narrative",
+          "response_id": "resp_0c7965591a770fc1006ae0f95931bc8196b8bb755e7f540be3",
+          "duration_ms": 4282.87,
+          "deployment": "gpt-4.1-mini",
+          "auth_mode": "network-key",
+          "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
+          "usage": {
+            "openai.reasoning_tokens": 0,
+            "total_token_count": 1081,
+            "cache_creation_input_token_count": 0,
+            "openai.cache_write_tokens": 0,
+            "openai.cached_input_tokens": 0,
+            "output_token_count": 244,
+            "reasoning_output_token_count": 0,
+            "input_token_count": 837,
+            "cache_read_input_token_count": 0
+          },
+          "sdk": "agent-framework-core/1.23.0",
+          "at": "2026-10-27T19:19:57.347328+00:00"
+        }
+      },
+      {
+        "stage": "validating",
+        "operation": "validate_evidence",
+        "detail": "",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:57.347402+00:00",
+        "source_sequence": 306
+      },
+      {
+        "stage": "published",
+        "operation": "finalize",
+        "detail": "",
+        "duration_ms": 0,
+        "at": "2026-10-27T19:19:57.350747+00:00",
+        "source_sequence": 306
+      }
+    ],
+    "tool_count": 2,
+    "evidence_ids": [
+      "demo-26:282",
+      "demo-26:283",
+      "demo-26:284",
+      "demo-26:285",
+      "demo-26:286",
+      "demo-26:287",
+      "demo-26:288",
+      "demo-26:289",
+      "demo-26:290",
+      "demo-26:291",
+      "demo-26:292",
+      "demo-26:293",
+      "demo-26:294",
+      "demo-26:295",
+      "demo-26:296",
+      "demo-26:297",
+      "demo-26:298",
+      "demo-26:299",
+      "demo-26:300",
+      "demo-26:301",
+      "demo-26:302",
+      "demo-26:303",
+      "demo-26:304",
+      "demo-26:305",
+      "demo-26:306"
+    ],
+    "observations": {
+      "get_forecast": {
+        "match_id": "demo-26",
+        "forecast_id": "5b5c953ec80cb51b:128:710",
+        "source_sequence": 306,
+        "state_hash": "5b5c953ec80cb51b7cba3965bd0366db8b41467fa496a54ad7ba6de9bb1a7012",
+        "model_version": "tactical-1.0",
+        "samples": 128,
+        "seed": 710,
+        "probabilities": {
+          "home": 0.0,
+          "draw": 0.0390625,
+          "away": 0.9609375
+        },
+        "standard_errors": {
+          "home": 0.0,
+          "draw": 0.01712468546557635,
+          "away": 0.01712468546557635
+        },
+        "label": "Synthetic model forecast; not calibrated to real matches"
+      },
+      "explain_forecast_change": {
+        "previous_sequence": 286,
+        "source_sequence": 306,
+        "previous_hash": "de2ae2e1eab1c8f819061bdd77473d4ba2bc439799c34a463389c83651c83152",
+        "source_hash": "5b5c953ec80cb51b7cba3965bd0366db8b41467fa496a54ad7ba6de9bb1a7012",
+        "model_version": "tactical-1.0",
+        "method": "ordered-group-replacement-v2",
+        "order": "forward",
+        "samples": 64,
+        "seed": 710,
+        "target": "home",
+        "delta": -0.046875,
+        "delta_standard_error": 0.026630253226448332,
+        "delta_interval_95": [
+          -0.09907029632383874,
+          0.005320296323838729
+        ],
+        "contributions": [
+          {
+            "factor": "Score & clock",
+            "home": -0.046875,
+            "standard_error": 0.026630253226448332,
+            "interval_95": [
+              -0.09907029632383874,
+              0.005320296323838729
+            ]
+          },
+          {
+            "factor": "Personnel & tactics",
+            "home": 0.0,
+            "standard_error": 0.0,
+            "interval_95": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "factor": "Possession & territory",
+            "home": 0.0,
+            "standard_error": 0.0,
+            "interval_95": [
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "residual": 0.0,
+        "verified": true,
+        "uncertainty": "Paired Monte Carlo standard errors and approximate 95% normal intervals; correlated factors, not simultaneous confidence bounds. Zero observed variation does not establish population certainty.",
+        "limitation": "Order-dependent model decomposition, not unique real-world causation."
+      }
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "validator_version": "strict-claims-2",
+      "source_sequence": 306
+    },
+    "hypothesis": {
+      "question": "Which result is most likely under the current model?",
+      "favored": "away",
+      "basis": "5b5c953ec80cb51b:128:710"
+    },
+    "hypotheses": [
+      {
+        "key": "outcome_leader",
+        "assessment": "away",
+        "source_sequence": 306,
+        "forecast_id": "5b5c953ec80cb51b:128:710",
+        "evidence_ids": [
+          "demo-26:282",
+          "demo-26:283",
+          "demo-26:284",
+          "demo-26:285",
+          "demo-26:286",
+          "demo-26:287",
+          "demo-26:288",
+          "demo-26:289",
+          "demo-26:290",
+          "demo-26:291",
+          "demo-26:292",
+          "demo-26:293",
+          "demo-26:294",
+          "demo-26:295",
+          "demo-26:296",
+          "demo-26:297",
+          "demo-26:298",
+          "demo-26:299",
+          "demo-26:300",
+          "demo-26:301",
+          "demo-26:302",
+          "demo-26:303",
+          "demo-26:304",
+          "demo-26:305",
+          "demo-26:306"
+        ],
+        "qualifier": "Most likely outcome within this synthetic model, not a certain result."
+      },
+      {
+        "key": "recent_shot_balance",
+        "assessment": "away",
+        "counts": [
+          0,
+          2
+        ],
+        "previous_counts": [
+          3,
+          1
+        ],
+        "source_sequence": 306,
+        "evidence_ids": [
+          "demo-26:282",
+          "demo-26:283",
+          "demo-26:284",
+          "demo-26:285",
+          "demo-26:286",
+          "demo-26:287",
+          "demo-26:288",
+          "demo-26:289",
+          "demo-26:290",
+          "demo-26:291",
+          "demo-26:292",
+          "demo-26:293",
+          "demo-26:294",
+          "demo-26:295",
+          "demo-26:296",
+          "demo-26:297",
+          "demo-26:298",
+          "demo-26:299",
+          "demo-26:300",
+          "demo-26:301",
+          "demo-26:302",
+          "demo-26:303",
+          "demo-26:304",
+          "demo-26:305",
+          "demo-26:306"
+        ],
+        "previous_evidence_ids": [
+          "demo-26:257",
+          "demo-26:258",
+          "demo-26:259",
+          "demo-26:260",
+          "demo-26:261",
+          "demo-26:262",
+          "demo-26:263",
+          "demo-26:264",
+          "demo-26:265",
+          "demo-26:266",
+          "demo-26:267",
+          "demo-26:268",
+          "demo-26:269",
+          "demo-26:270",
+          "demo-26:271",
+          "demo-26:272",
+          "demo-26:273",
+          "demo-26:274",
+          "demo-26:275",
+          "demo-26:276",
+          "demo-26:277",
+          "demo-26:278",
+          "demo-26:279",
+          "demo-26:280",
+          "demo-26:281"
+        ],
+        "qualifier": "Observed shot counts over an event window; not possession control or causal superiority."
+      }
+    ],
+    "relations": [],
+    "narratives": {
+      "viewer": {
+        "profile": "viewer",
+        "headline": "Northbridge FC 0\u20132 Harbour Athletic",
+        "text": "Northbridge FC 0\u20132 Harbour Athletic. The teams have taken 14 and 14 shots. Northbridge FC win 0.0%; draw 3.9%; Harbour Athletic win 96.1%. These are possibilities from a synthetic football model, not a prediction of a real match.",
+        "claims": [
+          {
+            "metric": "home_score",
+            "value": 0.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_score",
+            "value": 2.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_shots",
+            "value": 14.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_shots",
+            "value": 14.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_xg",
+            "value": 2.33745,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_xg",
+            "value": 1.9386,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_win",
+            "value": 0.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "draw",
+            "value": 0.0390625,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_win",
+            "value": 0.9609375,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          }
+        ],
+        "source_sequence": 306,
+        "synthetic": true
+      },
+      "analyst": {
+        "profile": "analyst",
+        "headline": "Northbridge FC 0\u20132 Harbour Athletic",
+        "text": "Northbridge FC 0\u20132 Harbour Athletic. Shots 14\u201314; model xG 2.34\u20131.94. Northbridge FC win 0.0%; draw 3.9%; Harbour Athletic win 96.1%. Based on 128 continuations at state 306, seed 710. Home-win Monte Carlo SE 0.0%.",
+        "claims": [
+          {
+            "metric": "home_score",
+            "value": 0.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_score",
+            "value": 2.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_shots",
+            "value": 14.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_shots",
+            "value": 14.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_xg",
+            "value": 2.33745,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_xg",
+            "value": 1.9386,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "home_win",
+            "value": 0.0,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "draw",
+            "value": 0.0390625,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          },
+          {
+            "metric": "away_win",
+            "value": 0.9609375,
+            "source_sequence": 306,
+            "event_ids": [
+              "demo-26:306"
+            ]
+          }
+        ],
+        "source_sequence": 306,
+        "synthetic": true
+      }
+    }
+  }
+}

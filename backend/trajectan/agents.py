@@ -10,6 +10,7 @@ import os
 import time
 from datetime import datetime, timezone
 from typing import Literal
+from urllib.parse import urlsplit
 from pydantic import Field, ValidationError
 from .domain import Strict, Draft, Claim, ScenarioRequest
 from .analytics import forecast, attribution, scenario
@@ -53,7 +54,28 @@ class Foundry:
         self.auth_mode = (
             "network-key" if os.getenv("TRAJECTAN_FOUNDRY_KEY") else "entra"
         )
+        self.inference_base_url = None
+        if self.enabled and self.auth_mode == "network-key":
+            # Resource keys belong to the Azure OpenAI resource endpoint, not the
+            # project-scoped API. Keep the restricted secret on that resource host.
+            endpoint = urlsplit(os.environ["FOUNDRY_PROJECT_ENDPOINT"])
+            suffix = ".services.ai.azure.com"
+            if (
+                endpoint.scheme != "https"
+                or not endpoint.hostname
+                or not endpoint.hostname.endswith(suffix)
+                or endpoint.username
+                or endpoint.password
+                or endpoint.port
+            ):
+                raise ValueError(
+                    "Network-key authentication requires an HTTPS Azure Foundry project endpoint"
+                )
+            resource = endpoint.hostname.removesuffix(suffix)
+            self.inference_base_url = f"https://{resource}.openai.azure.com/openai/v1/"
         self.agents = {}
+        self.budget_store = None
+        self.call_limit = int(os.getenv("TRAJECTAN_INFERENCE_CALL_LIMIT", "0"))
         self.successful_calls = 0
         self.receipts = []
         self.last_receipt = ContextVar("inference_receipt", default=None)
@@ -63,6 +85,7 @@ class Foundry:
                     "endpoint": os.getenv("FOUNDRY_PROJECT_ENDPOINT"),
                     "model": self.model,
                     "auth_mode": self.auth_mode,
+                    "inference_base_url": self.inference_base_url,
                     "sdk": "1.23.0/1.15.0",
                 },
                 sort_keys=True,
@@ -77,12 +100,22 @@ class Foundry:
             project = None
             if self.auth_mode == "network-key":
                 from azure.ai.projects.aio import AIProjectClient
+                from openai import DefaultAsyncHttpxClient
+
+                inference_base_url = self.inference_base_url
 
                 class NetworkKeyProjectClient(AIProjectClient):
                     def get_openai_client(self, **kwargs):
                         # SDK-supported override. The network-bound variable may be
                         # a proxy placeholder; pass it unchanged and never log it.
                         kwargs["api_key"] = os.environ["TRAJECTAN_FOUNDRY_KEY"]
+                        # Both overrides are documented AI Projects SDK options.
+                        kwargs["base_url"] = inference_base_url
+                        kwargs["max_retries"] = 0  # Controller owns bounded retries.
+                        # Projects' custom logging transport bypasses environment
+                        # proxies. The supported client override preserves proxy
+                        # routing, restricted key injection, and normal TLS trust.
+                        kwargs["http_client"] = DefaultAsyncHttpxClient()
                         return super().get_openai_client(**kwargs)
 
                 project = NetworkKeyProjectClient(
@@ -96,10 +129,11 @@ class Foundry:
                 credential=self.credential,
             )
             self.client = client
+            self.client.client.max_retries = 0
             for role, instructions in {
                 "Investigation": "Select useful allowlisted tools to investigate this pinned synthetic match. Defer if evidence is routine. Return JSON matching the provided schema. Do not invent facts.",
                 "Evidence & Reasoning": "Independently review the provided tool evidence. Request more evidence if needed; reject unsupported claims. Return JSON matching the provided schema.",
-                "Narrative": "Select a narrative angle and copy exact structured claims from verified facts. Return JSON matching the schema. No new numbers or free-form prose.",
+                "Narrative": "Select only the narrative angle. Copy EVERY supplied verified claim into the claims array, preserving every metric, exact value, source_sequence and event_ids. Never summarize, omit, merge or invent claims. The renderer requires the complete fact set, including zero values. For a repair request, copy all claims from input.verified. Return JSON matching the schema. No new numbers or free-form prose.",
             }.items():
                 self.agents[role] = Agent(
                     client=client,
@@ -117,9 +151,16 @@ class Foundry:
     async def ask(self, role, payload, schema):
         started = time.monotonic()
         self.last_receipt.set(None)
+        message = json.dumps(dict(input=payload, schema=schema.model_json_schema()))
+        if len(message.encode("utf-8")) > 60000:
+            raise ValueError("Inference input exceeds the 60000-byte budget")
+        if self.call_limit:
+            if self.budget_store is None:
+                raise ValueError("Persistent inference budget store is required")
+            self.budget_store.reserve_inference(self.call_limit)
         response = await asyncio.wait_for(
             self.agents[role].run(
-                json.dumps(dict(input=payload, schema=schema.model_json_schema())),
+                message,
                 options={"response_format": schema},
             ),
             timeout=30,
@@ -130,6 +171,8 @@ class Foundry:
             duration_ms=round((time.monotonic() - started) * 1000, 2),
             deployment=self.model,
             auth_mode=self.auth_mode,
+            endpoint_host=urlsplit(str(self.client.client.base_url)).hostname,
+            usage=dict(response.usage_details or {}),
             sdk="agent-framework-core/1.23.0",
             at=datetime.now(timezone.utc).isoformat(),
         )
@@ -162,6 +205,8 @@ class Workflow:
                 self.provider = UnavailableProvider(
                     type(error).__name__ + ": Foundry configuration unavailable"
                 )
+        if hasattr(self.provider, "budget_store"):
+            self.provider.budget_store = store
 
     @property
     def execution_mode(self):
@@ -237,6 +282,7 @@ class Workflow:
                     plan = await invoke(
                         "Investigation",
                         dict(
+                            objective="Assess why this pinned development matters to the model's outcome forecast. Goals and dismissals warrant checking their impact; ordinary events may be deferred. Select get_forecast when investigating outcomes, and compare prior evidence when useful.",
                             state=state.model_dump(),
                             recent=[e.model_dump() for e in window],
                             observations=tools,
@@ -418,6 +464,18 @@ class Workflow:
                 type(error).__name__
                 + "; inference or tool failed. No AI output published.",
             )
+            # Retain actionable diagnostics without logging exception text, headers,
+            # prompts or credentials. SDK wrappers chain the original HTTP error.
+            cause = error
+            for _ in range(4):
+                if cause.__cause__ is None:
+                    break
+                cause = cause.__cause__
+            trace[-1]["failure"] = dict(
+                type=type(error).__name__,
+                cause_type=type(cause).__name__,
+                http_status=getattr(cause, "status_code", None),
+            )
         record(status, "finalize")
         previous = self.store.list("investigation", state.match_id, seq - 1)
         previous = [i for i in previous if i["status"] == "published"]
@@ -456,6 +514,7 @@ class Workflow:
             evidence_ids=[e.event_id for e in window],
             observations=tools,
             validation=validation,
+            draft=draft.model_dump() if draft else None,
             hypothesis=hypothesis,
             hypotheses=assessments,
             relations=relationships

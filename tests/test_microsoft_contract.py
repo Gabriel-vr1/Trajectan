@@ -144,3 +144,27 @@ def test_network_key_alias_and_sdk_auth_selection(monkeypatch):
     assert provider.client.client.auth_headers == {
         "Authorization": "Bearer unit-test-proxy-placeholder"
     }
+    assert (
+        str(provider.client.client.base_url)
+        == "https://example.openai.azure.com/openai/v1/"
+    )
+    assert provider.client.client._client.trust_env is True
+    assert provider.client.client.max_retries == 0
+    asyncio.run(provider.close())
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    [
+        "http://example.services.ai.azure.com/api/projects/agentgate",
+        "https://untrusted.example/api/projects/agentgate",
+        "https://user:password@example.services.ai.azure.com/api/projects/agentgate",
+    ],
+)
+def test_network_key_rejects_unsupported_destinations(monkeypatch, endpoint):
+    from trajectan.agents import Foundry
+
+    monkeypatch.setenv("FOUNDRY_PROJECT_ENDPOINT", endpoint)
+    monkeypatch.setenv("TRAJECTAN_FOUNDRY_KEY", "unit-test-proxy-placeholder")
+    with pytest.raises(ValueError, match="HTTPS Azure Foundry project endpoint"):
+        Foundry()

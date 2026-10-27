@@ -58,6 +58,7 @@ async def main(output):
             and set(roles) == {"Investigation", "Evidence & Reasoning", "Narrative"}
         )
         report = {
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
             "live_inference_observed": bool(roles),
             "complete_workflow_verified": complete,
             "deployment": os.environ["FOUNDRY_MODEL"],
