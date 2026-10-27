@@ -1,3 +1,54 @@
+# Current final integration verification — 27 October 2026
+
+This section supersedes historical runtime/cloud limitations recorded below. Design intent is preserved in `TRAJECTAN_MASTER_REFERENCE.md`; operational claims below come from executed requests/tests.
+
+| Check | Actual result | Evidence |
+|---|---|---|
+| Runtime readiness | New configuration version, enforced restricted network, key/endpoint/model ready; no deployment identity | `evidence/runtime-readiness.json` |
+| Minimal authenticated Foundry request | gpt-4.1-mini responded “Trajectan inference verified.”; 16 input + 7 output tokens | `evidence/foundry-minimal.json` |
+| Native three-agent controller | All three roles, selected tools, handoffs, strict validation, **published** | `evidence/foundry-workflow.json` |
+| Real HTTP API + worker + Foundry | Completed investigation at seed 26 / state 306; three real responses; `inference-observed`; SQLite/local queue explicitly reported | `evidence/foundry-api.json` |
+| Local backend regression | **41 passed, 1 skipped in 10.83s**; two deployment-gate tests passed separately; PostgreSQL URL absent | `.venv/bin/pytest -q` |
+| Frontend production build | Passed TypeScript/Vite, 590 modules; 537 kB bundle advisory | `npm run build --prefix frontend` |
+| Local browser integration | **4 passed in 25.7s** | `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e` |
+| Local application smoke | Passed: 347 events, state 168, published investigation, completed scenario, immutable history and verified recap; deterministic development mode | `scripts/smoke.py http://127.0.0.1:8000` |
+| GitHub Actions at a3cf3b9 | **Passed**: 43 backend tests, 1 skipped in 15.58s; Bicep compile; production image build/start; container smoke; **4 browser tests in 19.3s** | [run 40569929117](https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117) |
+| Production image in that CI run | `sha256:8c09a0462bd55551ea46313d09414943afd7e38e93a114d769190cbd0750f9e0` | CI build log; not a published registry digest |
+| Python undefined/unused checks | Passed | `ruff check backend/trajectan tests scripts evals --select F` |
+| Azure local preflight | Correctly blocked: Azure CLI unavailable; readiness reports no outbound identity | `scripts/azure_preflight.py` |
+| Azure hosting, deployed identity, Service Bus, private PostgreSQL | **Unverified; no paid provisioning, no public URL** | Owner's local CLI and approval gates remain |
+
+The latest persisted successful workflow has 8,727 input and 420 output tokens across three receipts. Its exact response IDs are retained in JSON. These are real authenticated responses through the configured restricted key, not test doubles. The final verifier was rerun with persistent inference admission enabled.
+
+The verified production image and compiled Bicep template are preserved in [production-image-and-template](https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117/artifacts/12765212329), 93.9 MB, with 14-day artifact retention. Browser evidence is also uploaded. These artifacts preserve a working build; neither is an Azure deployment.
+
+## Live failures and corrections retained
+
+- Projects' default logging transport bypassed the runtime HTTP proxy and failed direct DNS. The SDK-supported default HTTP client override fixes proxy routing while retaining TLS and restricted secret injection.
+- Network-key inference uses the matching Azure OpenAI resource v1 endpoint through documented Projects `base_url` and `api_key` overrides. The native `FoundryChatClient` and real Agent Framework role instances remain in use.
+- An initial real Investigation deferred a routine-looking checkpoint. `foundry-deferred.json` retains this legitimate inconclusive result. The planner now receives an explicit objective to assess the pinned development's forecast impact.
+- An actual narrative omitted required claims; the unchanged strict validator rejected publication, including its bounded repair. `foundry-rejected.json` retains the receipts and errors. The Narrative instruction now explicitly requires copying every verified claim, including zero-valued metrics.
+- Default sandbox network isolation stalled asynchronous API tests; rerunning with supported network permission passed. npm's default cache was unwritable; a `/tmp` cache resolved installation. No package integrity/TLS checks were disabled.
+- Docker Hub and GitHub release-asset hosts are outside this runtime's network policy. Local container/Bicep downloads were not repeatedly retried. Actual Bicep/container verification was executed successfully in GitHub Actions.
+
+## Live held-out benchmark
+
+Template, single and multi modes used identical seeds 501–503 and matching state hashes at sequence 300. The existing template suite and live single-model suite both published 3/3 validated outputs. Multi-agent published 2/3; the remaining case was rejected during evidence review. Mean live latency was 3.829s single versus 7.765s multi. Reports are in `evidence/benchmark-single.json`, `evidence/benchmark-multi.json`, and `evals/template-baseline.json`.
+
+This is a tiny operational comparison, not a subjective relevance assessment, real-football accuracy claim or demonstrated multi-agent advantage. A rejection may be appropriate but is not counted as publication. No improvement has been inferred from architectural complexity.
+
+## Deployment engineering and limitations
+
+The template compiled in CI and now proposes a smaller same-origin Container App, private PostgreSQL networking, a separate short bootstrap job creating the least-privilege app login, Service Bus Basic with narrow identity roles, and optional initially disabled Static Web Apps. Deployment scripts are staged and approval-gated; their CLI test doubles do not establish Azure API compatibility, actual quota, eligibility, capacity or successful provisioning.
+
+The $12/72-hour proposal in `AZURE_COSTS.md` is a planning estimate subject to actual regional/account rates and owner approval, within the $15 ceiling. Managed-identity Foundry calls, cloud persistence/restart recovery, Service Bus exchange, public ingress/browser access and measured performance at 0.5 vCPU remain unverified. The cloud smoke acceptance steps are in `DEPLOYMENT.md`. A funded plan for the entire judging period is still required.
+
+---
+
+# Historical verification record
+
+The records below describe earlier checkpoints and are retained for provenance. Their statements about missing runtime configuration or no live inference are superseded by the current evidence above.
+
 # Executed verification record
 
 Checked 27 October 2026 in the Trajectan managed cloud workspace. Results below are executed checks, not projected acceptance claims.

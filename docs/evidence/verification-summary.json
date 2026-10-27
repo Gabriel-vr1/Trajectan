@@ -1,0 +1,34 @@
+{
+  "verified_code_commit": "a3cf3b9caeb13ea34b089d1a8730ee4f63e869de",
+  "ci_run": "https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117",
+  "ci_conclusion": "success",
+  "backend": {
+    "passed": 43,
+    "skipped": 1,
+    "seconds": 15.58,
+    "skip_reason": "TEST_POSTGRES_URL not configured"
+  },
+  "frontend_build": "passed",
+  "bicep_compile": "passed",
+  "container_build": "passed",
+  "container_smoke": "passed",
+  "container_browser": {
+    "passed": 4,
+    "seconds": 19.3
+  },
+  "container_image_id": "sha256:8c09a0462bd55551ea46313d09414943afd7e38e93a114d769190cbd0750f9e0",
+  "image_and_template_artifact": "https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117/artifacts/12765212329",
+  "live_foundry": true,
+  "three_role_workflow_verified": true,
+  "http_api_foundry_verified": true,
+  "azure_provisioned": false,
+  "azure_identity_available": false,
+  "public_deployment_url": null,
+  "cost_proposal": {
+    "usd": 12,
+    "hours": 72,
+    "project_ceiling_usd": 15,
+    "approval": "pending",
+    "actual_regional_quote": "unverified"
+  }
+}

@@ -15,6 +15,7 @@ RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi; \
     pip install --no-cache-dir -r backend/requirements-azure.txt
 COPY backend/ backend/
+COPY scripts/bootstrap_postgres.py scripts/bootstrap_postgres.py
 COPY --from=web /app/frontend/dist frontend/dist
 RUN useradd --uid 10001 --create-home app && mkdir /data && chown -R app:app /app /data
 USER app

@@ -11,3 +11,4 @@ test-results/
 
 *.tsbuildinfo
 .ruff_cache/
+*.local.json

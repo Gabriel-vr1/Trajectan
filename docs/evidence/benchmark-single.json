@@ -1,0 +1,46 @@
+{
+  "model_version": "tactical-1.0",
+  "mode": "single",
+  "case_count": 3,
+  "checkpoint": "event 300 (or final event if shorter)",
+  "forecast_samples": 128,
+  "forecast_seed": 710,
+  "verified_publication_rate": 1.0,
+  "mean_seconds": 3.829333333333333,
+  "limitations": "Small synthetic suite. Measures validator acceptance and operational latency, not subjective narrative relevance, causal validity or real-football predictive accuracy. Different modes must use identical seeds/state hashes before comparing. Token costs are not estimated.",
+  "rows": [
+    {
+      "seed": 501,
+      "state_sequence": 300,
+      "state_hash": "7f460207cde3974ac253885ddd0aaa5fea3fda11f9fac1d9160753c59f25028e",
+      "mode": "single",
+      "status": "published",
+      "published_verified": true,
+      "tool_count": 1,
+      "inference_calls": 1,
+      "seconds": 4.35
+    },
+    {
+      "seed": 502,
+      "state_sequence": 300,
+      "state_hash": "be04dd79f590f36c6e97abbb4e3e66123278fe69ee2a9e00fce5caf66259d115",
+      "mode": "single",
+      "status": "published",
+      "published_verified": true,
+      "tool_count": 1,
+      "inference_calls": 1,
+      "seconds": 3.522
+    },
+    {
+      "seed": 503,
+      "state_sequence": 300,
+      "state_hash": "a43b5599e3d453f399d0f33677b4cb44a4e5972624c524e40f784ebf627e9ba6",
+      "mode": "single",
+      "status": "published",
+      "published_verified": true,
+      "tool_count": 1,
+      "inference_calls": 1,
+      "seconds": 3.616
+    }
+  ]
+}

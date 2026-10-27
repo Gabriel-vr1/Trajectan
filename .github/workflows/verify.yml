@@ -13,10 +13,26 @@ jobs:
       - run: pytest -q
       - run: npm ci && npm run build && npx playwright install --with-deps chromium
         working-directory: frontend
-      - run: PYTHONPATH=backend uvicorn trajectan.api:app --host 127.0.0.1 --port 8000 > /tmp/trajectan-api.log 2>&1 &
+      - name: Compile Azure deployment templates
+        run: az bicep build --file infra/main.bicep --outfile /tmp/trajectan-template.json
+      - name: Build production container
+        run: docker build -f infra/Dockerfile -t trajectan:ci .
+      - name: Start production container
+        run: docker run -d --name trajectan-ci -p 127.0.0.1:8000:8000 trajectan:ci
       - run: python scripts/wait_ready.py
+      - run: python scripts/smoke.py http://127.0.0.1:8000
       - run: npm run test:e2e
         working-directory: frontend
+      - name: Preserve verified production image
+        run: docker save trajectan:ci | gzip > /tmp/trajectan-image.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-image-and-template
+          compression-level: 0
+          retention-days: 14
+          path: |
+            /tmp/trajectan-image.tar.gz
+            /tmp/trajectan-template.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -24,3 +40,6 @@ jobs:
           path: |
             docs/screenshots
             frontend/test-results
+      - name: Container logs
+        if: always()
+        run: docker logs trajectan-ci
