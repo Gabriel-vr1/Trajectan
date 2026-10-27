@@ -46,7 +46,7 @@ The initial forecast may take a few seconds. During playback forecasts refresh a
 - Outcome probabilities with sample counts and Monte Carlo standard errors; ordered grouped forecast-change attribution with a reconciliation residual.
 - Pressing, compactness, directness, substitution and role interventions; separately labelled goal, dismissal and injury premises.
 - Bounded investigation controller, allowlisted tool plans, independent numeric/provenance validation, terminal rejection/failure/inconclusive states, linked investigation memory.
-- Real Microsoft Agent Framework **1.23.0** and Foundry connector **1.15.0** adapter for three model roles. SDK construction and cleanup are tested. **Live Foundry inference has not been exercised.** Local operation uses deterministic planning and templates, clearly labelled in the UI and traces.
+- Real Microsoft Agent Framework **1.23.0** and Foundry connector **1.15.0** adapter for three model roles. SDK construction, cleanup, and actual three-role request/response execution using stubbed HTTP are tested. **Live Foundry inference has not been exercised.** Local operation uses deterministic planning and templates, clearly labelled in the UI and traces.
 - Durable job outbox, lease-based claiming, restart recovery and optional Azure Service Bus delivery. **Azure send/receive and PostgreSQL operation have not been exercised.**
 - Docker build definition, Azure Bicep template and GitHub Actions verification workflow. **No Azure resources have been provisioned and no public deployment is claimed.**
 
@@ -82,7 +82,7 @@ Install `backend/requirements-azure.txt` (or the tested full environment in `bac
 
 Inference uses three specialized `Agent` instances with `FoundryChatClient`: Investigation chooses a structured allowlisted plan; Evidence & Reasoning reviews the returned evidence; Narrative selects a structured factual presentation. Deterministic application code controls handoffs, budgets and publication. Free-form model prose is not published: approved claims drive safe renderers.
 
-The owner confirmed an existing succeeded **agentgate** project / **gpt-4.1-mini** deployment and active Azure for Students subscription. This runtime still has no Azure identity, credentials or project endpoint configured. Reuse the existing deployment; after server-side configuration run `PYTHONPATH=backend .venv/bin/python scripts/verify_foundry.py` for actual three-role inference verification. Remaining subscription credits are unverified.
+The owner confirmed an existing succeeded **agentgate** project / **gpt-4.1-mini** deployment and active Azure for Students subscription. This runtime still has no Azure identity, credentials or project endpoint configured. Reuse the existing deployment; after server-side configuration run `PYTHONPATH=backend .venv/bin/python scripts/verify_foundry.py` for actual three-role inference verification. The owner confirms $100 subscription credits. The current runtime is still on the older environment revision; follow [the cloud handoff](docs/CLOUD_HANDOFF.md) from a new task using the updated published configuration.
 
 ## Ownership and competition
 
