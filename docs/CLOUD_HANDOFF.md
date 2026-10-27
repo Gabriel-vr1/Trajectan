@@ -28,3 +28,11 @@ The installed OpenAI client sends that override as **Authorization: Bearer** to 
 The latest Docker rebuild was not executed: automatic approval review could not complete because the platform reported a usage limit. This was not a determination that Docker was unsafe. The previous checkpoint's container smoke test remains valid for that checkpoint; the newest code still needs a fresh container build. Local edits, existing verification results and repository preservation remain available. Do not bypass the approval mechanism.
 
 The current runtime's live verification command stopped at **missing FOUNDRY_PROJECT_ENDPOINT**, before any network request. There is no live authentication success, HTTP error, Azure deployment or public URL to report from this task.
+
+## Resumed verification — 27 October 2026
+
+A fresh status query in this conversation still identifies the **same revision 1 and configuration version above**, with current observations, no configured secrets/runtime variables/outbound identities, and no custom allowed hosts. Publishing configuration has not changed this task's attached instance. Presence-only process checks independently confirm all three expected variables are absent. `docs/foundry-runtime-check.json` preserves the verifier's preflight failure; no HTTP request, authentication rejection, inference receipt, or live agent handoff was observed.
+
+Create a **new task attached to the republished environment**, selecting `development/trajectan-integrated-app` and PR #1. Continuing this conversation has so far retained the old instance. Confirm runtime readiness before running the existing verifier. No key needs to be copied or supplied in chat. Header-injection compatibility cannot be determined without the new binding metadata; no speculative authentication change was made.
+
+The previous Docker usage-limit blocker is resolved: a fresh production image built successfully in this resumed run. Azure CLI remains unavailable here; the read-only preflight exits with that explicit diagnostic. Azure resource group, region, permissions, connectivity and an initial paid spending ceiling remain unconfirmed. No infrastructure was provisioned.

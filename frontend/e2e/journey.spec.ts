@@ -93,8 +93,18 @@ test("playback, historical cursor, fixture reset and responsive layout", async (
 test("attribution intervals and alternate factor order remain reconciled", async ({
   page,
 }) => {
+  // Reproduce cold/remote fixture loading: seeking before events arrive used
+  // to select state zero and leave attribution permanently disabled.
+  await page.route("**/api/matches/26", async (route) => {
+    const response = await route.fetch();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.fulfill({ response });
+  });
   await page.goto("/");
+  await expect(page.getByRole("button", { name: "Half-time", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Full-time", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Half-time", exact: true }).click();
+  await expect(page.getByText("45:00 · HALF 1")).toBeVisible();
   await page.getByRole("button", { name: "Explain forecast change" }).click();
   await expect(
     page.getByRole("heading", { name: "What moved the home-win forecast?" }),

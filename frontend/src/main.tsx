@@ -532,13 +532,14 @@ function App() {
             Return to live
           </button>
           <button
+            disabled={!events.length}
             onClick={() =>
               seek(events.find((e) => e.kind === "halftime")?.sequence ?? 0)
             }
           >
             Half-time
           </button>
-          <button onClick={() => seek(events.length)}>Full-time</button>
+          <button disabled={!events.length} onClick={() => seek(events.length)}>Full-time</button>
         </div>
         {error && (
           <div className="error" role="alert">

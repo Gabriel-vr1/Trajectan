@@ -7,6 +7,7 @@ import asyncio
 import json
 import os
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from trajectan.agents import Foundry, Workflow
 from trajectan.domain import initial
@@ -16,6 +17,24 @@ from trajectan.simulation import generate
 
 async def main(output):
     if not os.getenv("FOUNDRY_PROJECT_ENDPOINT"):
+        report = {
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "status": "configuration_blocked",
+            "live_inference_observed": False,
+            "complete_workflow_verified": False,
+            "roles_exercised": [],
+            "failure": {"stage": "preflight", "code": "missing_project_endpoint"},
+            "configuration_present": {
+                name: bool(os.getenv(name))
+                for name in (
+                    "FOUNDRY_PROJECT_ENDPOINT",
+                    "FOUNDRY_MODEL_DEPLOYMENT",
+                    "TRAJECTAN_FOUNDRY_KEY",
+                )
+            },
+        }
+        if output:
+            Path(output).write_text(json.dumps(report, indent=2) + "\n")
         raise SystemExit(
             "Missing FOUNDRY_PROJECT_ENDPOINT for agentgate. Configure server-side identity and network access; do not share keys or tokens in chat."
         )
