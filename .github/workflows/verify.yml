@@ -23,6 +23,16 @@ jobs:
       - run: python scripts/smoke.py http://127.0.0.1:8000
       - run: npm run test:e2e
         working-directory: frontend
+      - name: Preserve verified production image
+        run: docker save trajectan:ci | gzip > /tmp/trajectan-image.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-image-and-template
+          compression-level: 0
+          retention-days: 14
+          path: |
+            /tmp/trajectan-image.tar.gz
+            /tmp/trajectan-template.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

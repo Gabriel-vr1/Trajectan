@@ -1,4 +1,5 @@
 {
+  "recorded_at": "2026-10-27T19:25:38.081247+00:00",
   "live_inference_observed": true,
   "complete_workflow_verified": true,
   "deployment": "gpt-4.1-mini",
@@ -21,7 +22,7 @@
         "operation": "pin_state",
         "detail": "State 306; execution: foundry-agent-framework",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:47.681575+00:00",
+        "at": "2026-10-27T19:25:28.089395+00:00",
         "source_sequence": 306
       },
       {
@@ -29,60 +30,60 @@
         "operation": "planning_round",
         "detail": "1",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:47.681600+00:00",
+        "at": "2026-10-27T19:25:28.089420+00:00",
         "source_sequence": 306
       },
       {
         "stage": "agent_execution",
         "operation": "Investigation",
         "detail": "Structured response; attempt 1",
-        "duration_ms": 2904.07,
-        "at": "2026-10-27T19:19:50.585861+00:00",
+        "duration_ms": 2999.97,
+        "at": "2026-10-27T19:25:31.089574+00:00",
         "source_sequence": 306,
         "inference": {
           "role": "Investigation",
-          "response_id": "resp_089da5c49ad2b820006ae0f9542fe88194a705319f1a762e31",
-          "duration_ms": 2903.65,
+          "response_id": "resp_0f2f116dda688f7a006ae0faa8ef088197987fb24d5bc00722",
+          "duration_ms": 2999.85,
           "deployment": "gpt-4.1-mini",
           "auth_mode": "network-key",
           "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
           "usage": {
-            "openai.reasoning_tokens": 0,
-            "total_token_count": 7198,
-            "cache_creation_input_token_count": 0,
+            "total_token_count": 7205,
+            "reasoning_output_token_count": 0,
+            "output_token_count": 128,
+            "cache_read_input_token_count": 6912,
             "openai.cache_write_tokens": 0,
             "openai.cached_input_tokens": 6912,
-            "output_token_count": 121,
-            "reasoning_output_token_count": 0,
             "input_token_count": 7077,
-            "cache_read_input_token_count": 6912
+            "openai.reasoning_tokens": 0,
+            "cache_creation_input_token_count": 0
           },
           "sdk": "agent-framework-core/1.23.0",
-          "at": "2026-10-27T19:19:50.585717+00:00"
+          "at": "2026-10-27T19:25:31.089499+00:00"
         }
       },
       {
         "stage": "investigating",
         "operation": "Investigation",
-        "detail": "The latest pinned event is a goal by team 1 at sequence 306, which likely impacts the model's outcome forecast. To assess why this development matters, we should get the updated forecast and explain the forecast change caused by this goal.",
+        "detail": "The pinned event is a goal by team 1 (Harbour Athletic) at sequence 306, which can significantly affect the outcome forecast. Investigating with get_forecast will update the outcome probabilities, and explain_forecast_change will clarify the impact of this goal on the model's forecast.",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:50.586045+00:00",
+        "at": "2026-10-27T19:25:31.089600+00:00",
         "source_sequence": 306
       },
       {
         "stage": "investigating",
         "operation": "get_forecast",
         "detail": "completed",
-        "duration_ms": 200.86,
-        "at": "2026-10-27T19:19:50.786921+00:00",
+        "duration_ms": 189.71,
+        "at": "2026-10-27T19:25:31.279325+00:00",
         "source_sequence": 306
       },
       {
         "stage": "investigating",
         "operation": "explain_forecast_change",
         "detail": "completed",
-        "duration_ms": 514.53,
-        "at": "2026-10-27T19:19:51.301472+00:00",
+        "duration_ms": 484.87,
+        "at": "2026-10-27T19:25:31.764216+00:00",
         "source_sequence": 306
       },
       {
@@ -90,44 +91,44 @@
         "operation": "handoff",
         "detail": "Independent evidence review",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:51.301521+00:00",
+        "at": "2026-10-27T19:25:31.764236+00:00",
         "source_sequence": 306
       },
       {
         "stage": "agent_execution",
         "operation": "Evidence & Reasoning",
         "detail": "Structured response; attempt 1",
-        "duration_ms": 1762.73,
-        "at": "2026-10-27T19:19:53.064259+00:00",
+        "duration_ms": 2347.91,
+        "at": "2026-10-27T19:25:34.112152+00:00",
         "source_sequence": 306,
         "inference": {
           "role": "Evidence & Reasoning",
-          "response_id": "resp_0d42d9af46479a87006ae0f957717881909b8f30af2a4add96",
-          "duration_ms": 1762.65,
+          "response_id": "resp_066e46e1e628c37e006ae0faabe1f881948dbd0cbc0b294fa6",
+          "duration_ms": 2347.8,
           "deployment": "gpt-4.1-mini",
           "auth_mode": "network-key",
           "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
           "usage": {
-            "openai.reasoning_tokens": 0,
-            "total_token_count": 869,
-            "cache_creation_input_token_count": 0,
+            "total_token_count": 861,
+            "reasoning_output_token_count": 0,
+            "output_token_count": 48,
+            "cache_read_input_token_count": 0,
             "openai.cache_write_tokens": 0,
             "openai.cached_input_tokens": 0,
-            "output_token_count": 56,
-            "reasoning_output_token_count": 0,
             "input_token_count": 813,
-            "cache_read_input_token_count": 0
+            "openai.reasoning_tokens": 0,
+            "cache_creation_input_token_count": 0
           },
           "sdk": "agent-framework-core/1.23.0",
-          "at": "2026-10-27T19:19:53.064216+00:00"
+          "at": "2026-10-27T19:25:34.112076+00:00"
         }
       },
       {
         "stage": "evidence_review",
         "operation": "review",
-        "detail": "supported: The evidence provides detailed probabilistic forecast data along with changes explained by a methodical model decomposition using Monte Carlo standard errors and confidence intervals. The forecast and explanation are clearly documented, verified, and note model limitations, thus supporting the claim",
+        "detail": "supported: The provided evidence includes a forecast with probabilities and standard errors, alongside a detailed explanation of forecast change with quantified contributions and uncertainty measures. The information is coherent and verified, supporting the claim effectively.",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:53.064269+00:00",
+        "at": "2026-10-27T19:25:34.112164+00:00",
         "source_sequence": 306
       },
       {
@@ -135,36 +136,36 @@
         "operation": "handoff",
         "detail": "Narrative",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:53.064370+00:00",
+        "at": "2026-10-27T19:25:34.112217+00:00",
         "source_sequence": 306
       },
       {
         "stage": "agent_execution",
         "operation": "Narrative",
         "detail": "Structured response; attempt 1",
-        "duration_ms": 4282.96,
-        "at": "2026-10-27T19:19:57.347387+00:00",
+        "duration_ms": 3962.37,
+        "at": "2026-10-27T19:25:38.074607+00:00",
         "source_sequence": 306,
         "inference": {
           "role": "Narrative",
-          "response_id": "resp_0c7965591a770fc1006ae0f95931bc8196b8bb755e7f540be3",
-          "duration_ms": 4282.87,
+          "response_id": "resp_0b5e9bf261d1bf58006ae0faae3f0c8195b8760c6b71593fbe",
+          "duration_ms": 3962.22,
           "deployment": "gpt-4.1-mini",
           "auth_mode": "network-key",
           "endpoint_host": "agentgate-foundry-gvr0710.openai.azure.com",
           "usage": {
-            "openai.reasoning_tokens": 0,
             "total_token_count": 1081,
-            "cache_creation_input_token_count": 0,
+            "reasoning_output_token_count": 0,
+            "output_token_count": 244,
+            "cache_read_input_token_count": 0,
             "openai.cache_write_tokens": 0,
             "openai.cached_input_tokens": 0,
-            "output_token_count": 244,
-            "reasoning_output_token_count": 0,
             "input_token_count": 837,
-            "cache_read_input_token_count": 0
+            "openai.reasoning_tokens": 0,
+            "cache_creation_input_token_count": 0
           },
           "sdk": "agent-framework-core/1.23.0",
-          "at": "2026-10-27T19:19:57.347328+00:00"
+          "at": "2026-10-27T19:25:38.074487+00:00"
         }
       },
       {
@@ -172,7 +173,7 @@
         "operation": "validate_evidence",
         "detail": "",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:57.347402+00:00",
+        "at": "2026-10-27T19:25:38.074622+00:00",
         "source_sequence": 306
       },
       {
@@ -180,7 +181,7 @@
         "operation": "finalize",
         "detail": "",
         "duration_ms": 0,
-        "at": "2026-10-27T19:19:57.350747+00:00",
+        "at": "2026-10-27T19:25:38.075130+00:00",
         "source_sequence": 306
       }
     ],
@@ -290,6 +291,83 @@
       "errors": [],
       "validator_version": "strict-claims-2",
       "source_sequence": 306
+    },
+    "draft": {
+      "claims": [
+        {
+          "metric": "home_score",
+          "value": 0.0,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "away_score",
+          "value": 2.0,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "home_shots",
+          "value": 14.0,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "away_shots",
+          "value": 14.0,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "home_xg",
+          "value": 2.33745,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "away_xg",
+          "value": 1.9386,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "home_win",
+          "value": 0.0,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "draw",
+          "value": 0.0390625,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        },
+        {
+          "metric": "away_win",
+          "value": 0.9609375,
+          "source_sequence": 306,
+          "event_ids": [
+            "demo-26:306"
+          ]
+        }
+      ],
+      "angle": "chances"
     },
     "hypothesis": {
       "question": "Which result is most likely under the current model?",

@@ -1,3 +1,7 @@
+# Current integration milestone — 27 October 2026
+
+Live authenticated Foundry inference and the actual three-role Agent Framework controller now pass, including deterministic publication validation. See `evidence/foundry-workflow.json` and `VERIFICATION.md`. Earlier statements below describe historical milestones. Azure hosting, managed-identity inference, cloud PostgreSQL and Service Bus remain unverified. No paid resources were provisioned.
+
 # Capability status and continuation handoff
 
 This is an implemented, locally verified application checkpoint, not completion of every D01–D28 acceptance item. Approved capabilities remain in scope.

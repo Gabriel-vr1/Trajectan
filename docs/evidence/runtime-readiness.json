@@ -1,0 +1,69 @@
+{
+  "environment_id": "ccarenv_b64_Y2NhcmVudl9lYmY2MTQ0ZmFjMTQ4MTkxODFkZmE2YjJjMjNiYTYyNw",
+  "source_config_id": "d4d79840-f1bb-4920-81b4-799e34a4d20b~cecfg_6ae06610cb78819a835d63ceb33a570f",
+  "source_config_version_id": "d4d79840-f1bb-4920-81b4-799e34a4d20b~cecfgver_6ae0c6df96b0819a8a0ae09323b299b0",
+  "spec_revision": "1",
+  "observed_spec_revision": "1",
+  "observations_current": true,
+  "provider": "cloud",
+  "desired_phase": "running",
+  "observed_phase": "running",
+  "failure": null,
+  "connectivity": "connected",
+  "network_policy": {
+    "mode": "restricted",
+    "state": "enforced",
+    "allowed_hosts": [
+      "agentgate-foundry-gvr0710.openai.azure.com",
+      "agentgate-foundry-gvr0710.services.ai.azure.com",
+      "files.pythonhosted.org",
+      "github.com",
+      "login.microsoftonline.com",
+      "management.azure.com",
+      "pypi.org",
+      "registry.npmjs.org"
+    ],
+    "presets": [],
+    "preset_allowed_hosts": [],
+    "effective_allowed_hosts": [
+      "agentgate-foundry-gvr0710.openai.azure.com",
+      "agentgate-foundry-gvr0710.services.ai.azure.com",
+      "files.pythonhosted.org",
+      "github.com",
+      "login.microsoftonline.com",
+      "management.azure.com",
+      "pypi.org",
+      "registry.npmjs.org",
+      "www.github.com",
+      "www.pypi.org"
+    ]
+  },
+  "capabilities": [],
+  "secrets": [
+    {
+      "name": "TRAJECTAN_FOUNDRY_KEY",
+      "target": {
+        "environment_variable": "TRAJECTAN_FOUNDRY_KEY",
+        "allowed_domains": [
+          "agentgate-foundry-gvr0710.openai.azure.com"
+        ]
+      },
+      "optional": false,
+      "state": "ready"
+    }
+  ],
+  "runtime_variables": [
+    {
+      "environment_variable": "FOUNDRY_PROJECT_ENDPOINT",
+      "optional": false,
+      "state": "ready"
+    },
+    {
+      "environment_variable": "FOUNDRY_MODEL_DEPLOYMENT",
+      "optional": false,
+      "state": "ready"
+    }
+  ],
+  "outbound_identities": [],
+  "network_diagnostics": null
+}
