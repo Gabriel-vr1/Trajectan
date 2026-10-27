@@ -1,0 +1,88 @@
+[
+  {
+    "seed": 26,
+    "events": 347,
+    "final_score": [
+      0,
+      2
+    ],
+    "final_hash": "2ae6ee21820115c30fa741dcefa45243469df1c57e0181800a1171a9d9bfe70b",
+    "half_time": 168,
+    "goals": [
+      {
+        "sequence": 187,
+        "second": 2965,
+        "player": "H9"
+      },
+      {
+        "sequence": 306,
+        "second": 4821,
+        "player": "H10"
+      }
+    ]
+  },
+  {
+    "seed": 77,
+    "events": 347,
+    "final_score": [
+      3,
+      1
+    ],
+    "final_hash": "a24f7e8aaf47bf1656268b9f10f9b610e502bb8148ed07970f3bb5a72cab0887",
+    "half_time": 171,
+    "goals": [
+      {
+        "sequence": 17,
+        "second": 255,
+        "player": "N8"
+      },
+      {
+        "sequence": 256,
+        "second": 4035,
+        "player": "H5"
+      },
+      {
+        "sequence": 283,
+        "second": 4450,
+        "player": "N3"
+      },
+      {
+        "sequence": 286,
+        "second": 4494,
+        "player": "N9"
+      }
+    ]
+  },
+  {
+    "seed": 2026,
+    "events": 339,
+    "final_score": [
+      2,
+      2
+    ],
+    "final_hash": "ee558f20d9aacc97b017a101b12ec4f8dd4f9912fe902bc8179d1fced2270b4b",
+    "half_time": 169,
+    "goals": [
+      {
+        "sequence": 17,
+        "second": 272,
+        "player": "N10"
+      },
+      {
+        "sequence": 53,
+        "second": 864,
+        "player": "N6"
+      },
+      {
+        "sequence": 97,
+        "second": 1539,
+        "player": "H6"
+      },
+      {
+        "sequence": 245,
+        "second": 3890,
+        "player": "H2"
+      }
+    ]
+  }
+]

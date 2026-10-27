@@ -1,0 +1,26 @@
+name: Verify Trajectan
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: pip install -r backend/requirements.txt
+      - run: pytest -q
+      - run: npm ci && npm run build && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: PYTHONPATH=backend uvicorn trajectan.api:app --host 127.0.0.1 --port 8000 > /tmp/trajectan-api.log 2>&1 &
+      - run: python scripts/wait_ready.py
+      - run: npm run test:e2e
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: |
+            docs/screenshots
+            frontend/test-results

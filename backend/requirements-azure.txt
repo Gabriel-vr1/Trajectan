@@ -1,0 +1,6 @@
+-r requirements.txt
+agent-framework-core==1.23.0
+agent-framework-foundry==1.15.0
+azure-identity==1.25.2
+azure-servicebus==7.14.3
+psycopg[binary]==3.3.3

@@ -1,0 +1,1244 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Trajectan",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches": {
+      "get": {
+        "summary": "Matches",
+        "operationId": "matches_api_matches_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}": {
+      "get": {
+        "summary": "Get Match",
+        "operationId": "get_match_api_matches__seed__get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/states/{seq}": {
+      "get": {
+        "summary": "Get State",
+        "operationId": "get_state_api_matches__seed__states__seq__get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/forecasts/{seq}": {
+      "get": {
+        "summary": "Get Forecast",
+        "operationId": "get_forecast_api_matches__seed__forecasts__seq__get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/attribution/{seq}": {
+      "get": {
+        "summary": "Get Attribution",
+        "operationId": "get_attribution_api_matches__seed__attribution__seq__get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seq"
+            }
+          },
+          {
+            "name": "previous",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Previous"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/investigations/{seq}": {
+      "post": {
+        "summary": "Investigate",
+        "operationId": "investigate_api_matches__seed__investigations__seq__post",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/investigations": {
+      "get": {
+        "summary": "Investigations",
+        "operationId": "investigations_api_matches__seed__investigations_get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "sequence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 100000,
+              "title": "Sequence"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/scenarios": {
+      "post": {
+        "summary": "Simulate",
+        "operationId": "simulate_api_matches__seed__scenarios_post",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{key}": {
+      "get": {
+        "summary": "Job",
+        "operationId": "job_api_jobs__key__get",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/recap/{seq}": {
+      "get": {
+        "summary": "Recap",
+        "operationId": "recap_api_matches__seed__recap__seq__get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seq"
+            }
+          },
+          {
+            "name": "profile",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(viewer|analyst)$",
+              "default": "viewer",
+              "title": "Profile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/matches/{seed}/stream": {
+      "get": {
+        "summary": "Stream",
+        "operationId": "stream_api_matches__seed__stream_get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Index",
+        "operationId": "index__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Event": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version",
+            "default": 1
+          },
+          "second": {
+            "type": "integer",
+            "title": "Second"
+          },
+          "period": {
+            "type": "integer",
+            "title": "Period"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "kickoff",
+              "pass",
+              "turnover",
+              "shot",
+              "foul",
+              "halftime",
+              "fulltime"
+            ],
+            "title": "Kind"
+          },
+          "team": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Team"
+          },
+          "player": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player"
+          },
+          "receiver": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiver"
+          },
+          "possession_id": {
+            "type": "integer",
+            "title": "Possession Id"
+          },
+          "start": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Start"
+          },
+          "end": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "End"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "restart",
+              "complete",
+              "intercepted",
+              "recovery",
+              "goal",
+              "saved",
+              "missed",
+              "yellow",
+              "red",
+              "foul",
+              "whistle"
+            ],
+            "title": "Outcome"
+          },
+          "xg": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Xg",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_id",
+          "match_id",
+          "sequence",
+          "second",
+          "period",
+          "kind",
+          "team",
+          "possession_id",
+          "start",
+          "end",
+          "outcome"
+        ],
+        "title": "Event"
+      },
+      "ForecastResult": {
+        "properties": {
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "forecast_id": {
+            "type": "string",
+            "title": "Forecast Id"
+          },
+          "source_sequence": {
+            "type": "integer",
+            "title": "Source Sequence"
+          },
+          "state_hash": {
+            "type": "string",
+            "title": "State Hash"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "samples": {
+            "type": "integer",
+            "title": "Samples"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "probabilities": {
+            "$ref": "#/components/schemas/Probabilities"
+          },
+          "standard_errors": {
+            "$ref": "#/components/schemas/Probabilities"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "match_id",
+          "forecast_id",
+          "source_sequence",
+          "state_hash",
+          "model_version",
+          "samples",
+          "seed",
+          "probabilities",
+          "standard_errors",
+          "label"
+        ],
+        "title": "ForecastResult"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MatchResponse": {
+        "properties": {
+          "initial": {
+            "$ref": "#/components/schemas/State"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "title": "Synthetic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "initial",
+          "events",
+          "total",
+          "synthetic"
+        ],
+        "title": "MatchResponse"
+      },
+      "Player": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "GK",
+              "DF",
+              "MF",
+              "FW"
+            ],
+            "title": "Role"
+          },
+          "passing": {
+            "type": "number",
+            "title": "Passing"
+          },
+          "shooting": {
+            "type": "number",
+            "title": "Shooting"
+          },
+          "defending": {
+            "type": "number",
+            "title": "Defending"
+          },
+          "pace": {
+            "type": "number",
+            "title": "Pace"
+          },
+          "stamina": {
+            "type": "number",
+            "title": "Stamina",
+            "default": 1
+          },
+          "yellow": {
+            "type": "integer",
+            "title": "Yellow",
+            "default": 0
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "default": true
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "passing",
+          "shooting",
+          "defending",
+          "pace"
+        ],
+        "title": "Player"
+      },
+      "Probabilities": {
+        "properties": {
+          "home": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Home"
+          },
+          "draw": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Draw"
+          },
+          "away": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Away"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "home",
+          "draw",
+          "away"
+        ],
+        "title": "Probabilities"
+      },
+      "ScenarioRequest": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Sequence"
+          },
+          "team": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Team",
+            "default": 0
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "tactical",
+              "circumstance"
+            ],
+            "title": "Category",
+            "default": "tactical"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "press",
+              "compactness",
+              "directness",
+              "substitution",
+              "role",
+              "goal",
+              "red_card",
+              "injury"
+            ],
+            "title": "Action",
+            "default": "press"
+          },
+          "value": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Value",
+            "default": 0.8
+          },
+          "player": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player"
+          },
+          "replacement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replacement"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "GK",
+                  "DF",
+                  "MF",
+                  "FW"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "samples": {
+            "type": "integer",
+            "maximum": 512.0,
+            "minimum": 32.0,
+            "title": "Samples",
+            "default": 128
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 710
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence"
+        ],
+        "title": "ScenarioRequest"
+      },
+      "State": {
+        "properties": {
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "default": "tactical-1.0"
+          },
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version",
+            "default": 1
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence",
+            "default": 0
+          },
+          "second": {
+            "type": "integer",
+            "title": "Second",
+            "default": 0
+          },
+          "period": {
+            "type": "integer",
+            "title": "Period",
+            "default": 1
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "playing",
+              "halftime",
+              "finished"
+            ],
+            "title": "Phase",
+            "default": "ready"
+          },
+          "score": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Score"
+          },
+          "shots": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Shots"
+          },
+          "xg": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Xg"
+          },
+          "passes": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Passes"
+          },
+          "completed": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Completed"
+          },
+          "possession_seconds": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Possession Seconds"
+          },
+          "possession": {
+            "type": "integer",
+            "title": "Possession",
+            "default": 0
+          },
+          "possession_id": {
+            "type": "integer",
+            "title": "Possession Id",
+            "default": 1
+          },
+          "ball": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Ball",
+            "default": [
+              50,
+              50
+            ]
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/Team"
+            },
+            "type": "array",
+            "title": "Teams"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "match_id",
+          "seed",
+          "teams"
+        ],
+        "title": "State"
+      },
+      "StateResponse": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/State"
+          },
+          "state_hash": {
+            "type": "string",
+            "title": "State Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state",
+          "state_hash"
+        ],
+        "title": "StateResponse"
+      },
+      "Tactics": {
+        "properties": {
+          "press": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Press",
+            "default": 0.5
+          },
+          "compactness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Compactness",
+            "default": 0.5
+          },
+          "directness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Directness",
+            "default": 0.5
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Tactics"
+      },
+      "Team": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "attack": {
+            "type": "number",
+            "title": "Attack"
+          },
+          "defense": {
+            "type": "number",
+            "title": "Defense"
+          },
+          "tactics": {
+            "$ref": "#/components/schemas/Tactics"
+          },
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/Player"
+            },
+            "type": "array",
+            "title": "Players"
+          },
+          "substitutions": {
+            "type": "integer",
+            "title": "Substitutions",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "attack",
+          "defense",
+          "players"
+        ],
+        "title": "Team"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
