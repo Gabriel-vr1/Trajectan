@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-10-27T14:52:17.343711+00:00",
+  "status": "configuration_blocked",
+  "live_inference_observed": false,
+  "complete_workflow_verified": false,
+  "roles_exercised": [],
+  "failure": {
+    "stage": "preflight",
+    "code": "missing_project_endpoint"
+  },
+  "configuration_present": {
+    "FOUNDRY_PROJECT_ENDPOINT": false,
+    "FOUNDRY_MODEL_DEPLOYMENT": false,
+    "TRAJECTAN_FOUNDRY_KEY": false
+  }
+}
