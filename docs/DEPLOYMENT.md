@@ -36,6 +36,8 @@ docker push PUBLIC_REGISTRY/trajectan:COMMIT_SHA
 docker inspect --format='{{index .RepoDigests 0}}' PUBLIC_REGISTRY/trajectan:COMMIT_SHA
 ```
 
+The final GitHub Actions run also uploads `production-image-and-template` with `trajectan-image.tar.gz` and the compiled template. Download that artifact and use `docker load --input trajectan-image.tar.gz` to reuse the tested image; tag it for your authorized registry and push it, then record its resulting registry digest. The CI image ID is not a registry manifest digest.
+
 Choose an existing authorized registry and make the **image readable by Azure**, or separately review registry authentication and its costs. The deployment script requires the tested public image's `@sha256:` digest. It does not create a registry or turn on an admin registry account. A public source repository does not imply its GHCR package is public.
 
 For builds in a managed proxy environment, mount the CA using `--secret id=proxy_ca,src=/etc/ssl/certs/ca-certificates.crt`. Keep TLS verification enabled. The non-root image runs as UID 10001; database state belongs in PostgreSQL for cloud deployments.

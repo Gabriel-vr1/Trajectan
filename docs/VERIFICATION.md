@@ -8,17 +8,19 @@ This section supersedes historical runtime/cloud limitations recorded below. Des
 | Minimal authenticated Foundry request | gpt-4.1-mini responded “Trajectan inference verified.”; 16 input + 7 output tokens | `evidence/foundry-minimal.json` |
 | Native three-agent controller | All three roles, selected tools, handoffs, strict validation, **published** | `evidence/foundry-workflow.json` |
 | Real HTTP API + worker + Foundry | Completed investigation at seed 26 / state 306; three real responses; `inference-observed`; SQLite/local queue explicitly reported | `evidence/foundry-api.json` |
-| Local backend regression | **41 passed, 1 skipped in 10.83s** before adding two deployment-gate tests; PostgreSQL URL absent | `.venv/bin/pytest -q` |
+| Local backend regression | **41 passed, 1 skipped in 10.83s**; two deployment-gate tests passed separately; PostgreSQL URL absent | `.venv/bin/pytest -q` |
 | Frontend production build | Passed TypeScript/Vite, 590 modules; 537 kB bundle advisory | `npm run build --prefix frontend` |
 | Local browser integration | **4 passed in 25.7s** | `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e` |
 | Local application smoke | Passed: 347 events, state 168, published investigation, completed scenario, immutable history and verified recap; deterministic development mode | `scripts/smoke.py http://127.0.0.1:8000` |
-| GitHub Actions at f9d7ef5 | **Passed**: 41 backend tests, 1 skipped; Bicep compile; production image build/start; container smoke; **4 browser tests in 18.0s** | [run 40569010910](https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569010910) |
-| Production image in that CI run | `sha256:4e9a0d075b88846ccf1ceca172fbc112ee554c80042b7707ae7760635546b345` | CI build log; not a published registry digest |
+| GitHub Actions at a3cf3b9 | **Passed**: 43 backend tests, 1 skipped in 15.58s; Bicep compile; production image build/start; container smoke; **4 browser tests in 19.3s** | [run 40569929117](https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117) |
+| Production image in that CI run | `sha256:8c09a0462bd55551ea46313d09414943afd7e38e93a114d769190cbd0750f9e0` | CI build log; not a published registry digest |
 | Python undefined/unused checks | Passed | `ruff check backend/trajectan tests scripts evals --select F` |
 | Azure local preflight | Correctly blocked: Azure CLI unavailable; readiness reports no outbound identity | `scripts/azure_preflight.py` |
 | Azure hosting, deployed identity, Service Bus, private PostgreSQL | **Unverified; no paid provisioning, no public URL** | Owner's local CLI and approval gates remain |
 
 The latest persisted successful workflow has 8,727 input and 420 output tokens across three receipts. Its exact response IDs are retained in JSON. These are real authenticated responses through the configured restricted key, not test doubles. The final verifier was rerun with persistent inference admission enabled.
+
+The verified production image and compiled Bicep template are preserved in [production-image-and-template](https://github.com/Gabriel-vr1/Trajectan/actions/runs/40569929117/artifacts/12765212329), 93.9 MB, with 14-day artifact retention. Browser evidence is also uploaded. These artifacts preserve a working build; neither is an Azure deployment.
 
 ## Live failures and corrections retained
 

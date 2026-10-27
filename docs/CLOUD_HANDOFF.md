@@ -19,7 +19,7 @@ Real triage deferral and narrative rejection evidence are retained separately. T
 
 ## Verification and spending protection
 
-Local regression: **41 passed, 1 skipped** (PostgreSQL URL absent). TypeScript/Vite build and **4 browser journeys** pass. Native SDK serialization tests use stubbed HTTP and remain distinct from the real inference reports. Local smoke uses SQLite/local queue and truthfully reports development fallback. See VERIFICATION.md for final CI/container evidence.
+Local regression: **41 passed, 1 skipped**, plus two deployment-gate tests; final CI: **43 passed, 1 skipped** (PostgreSQL URL absent). TypeScript/Vite build and **4 browser journeys** pass. Native SDK serialization tests use stubbed HTTP and remain distinct from the real inference reports. Local smoke uses SQLite/local queue and truthfully reports development fallback. See VERIFICATION.md for final CI/container evidence.
 
 The live three-case benchmark published 3/3 validated single-model outputs and 2/3 multi-agent outputs; one multi-agent review rejected evidence. This small test does not demonstrate an advantage for the multi-agent system. State hashes match the template suite.
 
