@@ -199,7 +199,6 @@ function App() {
     playing && cursor === null ? Math.floor(seq / 20) * 20 : seq;
   useEffect(() => {
     let active = true;
-    setFc(null);
     setRecap(null);
     if (!events.length) return;
     api<Forecast>(`/matches/${seed}/forecasts/${forecastSeq}`)
@@ -374,6 +373,10 @@ function App() {
     selected = shownEvents.at(-1),
     latest = investigations.filter((i) => i.source_sequence <= seq).at(-1),
     visibleFocus = focused && focused.source_sequence <= seq ? focused : latest;
+  // Keep confirmed values during forward refreshes; never show future evidence
+  // when the viewer seeks backwards. Fixture changes clear both snapshots.
+  const scoreState = state && state.sequence <= seq ? state : null;
+  const visibleForecast = fc && fc.source_sequence <= seq ? fc : null;
   const prob = (f: Forecast | null) =>
     f ? (
       <div className="probabilities">
@@ -391,7 +394,7 @@ function App() {
         </div>
       </div>
     ) : (
-      <p className="muted" role="status">
+      <p className="muted forecast-loading" role="status">
         Calculating model probabilities…
       </p>
     );
@@ -472,16 +475,23 @@ function App() {
                 Northbridge <small>FC · HOME</small>
               </h2>
             </div>
-            <div className="score">
+            <div className="score" aria-label="Match score">
               <strong>
-                {state?.sequence === seq ? state.score.join(" : ") : "— : —"}
+                {scoreState ? scoreState.score.join(" : ") : "— : —"}
               </strong>
               <span>
-                {state?.sequence === seq ? clock(state.second) : "Loading…"} ·{" "}
-                {state?.phase === "finished"
+                {scoreState ? clock(scoreState.second) : "—:—"} ·{" "}
+                {scoreState?.phase === "finished"
                   ? "FULL TIME"
-                  : `HALF ${state?.period ?? 1}`}
+                  : scoreState
+                    ? `HALF ${scoreState.period}`
+                    : "—"}
               </span>
+              <small className="score-source">
+                {scoreState
+                  ? `Confirmed state ${scoreState.sequence}`
+                  : "Fetching selected state"}
+              </small>
             </div>
             <div>
               <span className="crest cyan">H</span>
@@ -539,7 +549,9 @@ function App() {
           >
             Half-time
           </button>
-          <button disabled={!events.length} onClick={() => seek(events.length)}>Full-time</button>
+          <button disabled={!events.length} onClick={() => seek(events.length)}>
+            Full-time
+          </button>
         </div>
         {error && (
           <div className="error" role="alert">
@@ -588,13 +600,13 @@ function App() {
                         width="10.5"
                         height="68"
                         fill="#ffffff"
-                        opacity=".025"
+                        opacity=".045"
                       />
                     </pattern>
                   </defs>
                   <rect width="105" height="68" rx="1" fill="#203d3b" />
                   <rect width="105" height="68" fill="url(#stripes)" />
-                  <g fill="none" stroke="#91aca0" strokeWidth=".3">
+                  <g fill="none" stroke="#a6c2b4" strokeWidth=".35">
                     <rect x="3" y="3" width="99" height="62" />
                     <path d="M52.5 3V65" />
                     <circle cx="52.5" cy="34" r="9.15" />
@@ -633,6 +645,8 @@ function App() {
                         cx={3 + e.start[0] * 0.99}
                         cy={3 + e.start[1] * 0.62}
                         r={e.outcome === "goal" ? 1.6 : 1}
+                        stroke="#102523"
+                        strokeWidth=".35"
                         fill={e.team === 0 ? "#c9f15a" : "#45aecb"}
                       >
                         <title>
@@ -726,7 +740,7 @@ function App() {
                   </div>
                   <span className="badge light">MODEL ESTIMATE</span>
                 </div>
-                {prob(fc)}
+                {prob(visibleForecast)}
                 <button
                   disabled={!!busy || seq === 0}
                   onClick={() => explain()}
@@ -771,6 +785,7 @@ function App() {
                       />
                       <Tooltip formatter={(v) => pct(Number(v))} />
                       <Area
+                        isAnimationActive={false}
                         type="monotone"
                         dataKey="home"
                         stroke="#668426"
@@ -778,12 +793,14 @@ function App() {
                         fillOpacity={0.2}
                       />
                       <Area
+                        isAnimationActive={false}
                         type="monotone"
                         dataKey="draw"
                         stroke="#89919b"
                         fill="none"
                       />
                       <Area
+                        isAnimationActive={false}
                         type="monotone"
                         dataKey="away"
                         stroke="#27869e"
@@ -793,8 +810,8 @@ function App() {
                   </ResponsiveContainer>
                 </div>
                 <small>
-                  {fc
-                    ? `${fc.samples} continuations · state ${fc.source_sequence} · seed ${fc.seed} · home SE ${pct(fc.standard_errors.home)}`
+                  {visibleForecast
+                    ? `${visibleForecast.samples} continuations · state ${visibleForecast.source_sequence} · seed ${visibleForecast.seed} · home SE ${pct(visibleForecast.standard_errors.home)}`
                     : "Forecasts appear as you visit match states."}{" "}
                   · Synthetic model, not real-match calibration.
                 </small>

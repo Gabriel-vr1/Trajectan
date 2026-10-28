@@ -101,8 +101,12 @@ test("attribution intervals and alternate factor order remain reconciled", async
     await route.fulfill({ response });
   });
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Half-time", exact: true })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Full-time", exact: true })).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Half-time", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Full-time", exact: true }),
+  ).toBeDisabled();
   await page.getByRole("button", { name: "Half-time", exact: true }).click();
   await expect(page.getByText("45:00 · HALF 1")).toBeVisible();
   await page.getByRole("button", { name: "Explain forecast change" }).click();
@@ -146,3 +150,88 @@ test("a late scenario response cannot change a different fixture", async ({
     page.getByRole("button", { name: "Run paired simulation" }),
   ).toBeEnabled();
 });
+
+for (const width of [1280, 390]) {
+  test(`scoreboard and forecast stay stable during delayed playback at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".score-source")).toHaveText("Confirmed state 0");
+    await expect(page.locator(".probabilities")).toBeVisible();
+    const score = page.locator(".score");
+    const before = await score.boundingBox();
+    const teams = await page
+      .locator(".fixture h2")
+      .evaluateAll((nodes) => nodes.map((n) => n.getBoundingClientRect().x));
+    const initialScore = await score.locator("strong").innerText();
+    const probabilities = await page.locator(".probabilities").innerText();
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route(
+      /\/api\/matches\/26\/(states|forecasts)\/[1-9]\d*$/,
+      async (route) => {
+        const response = await route.fetch();
+        await gate;
+        await route.fulfill({ response });
+      },
+    );
+    try {
+      await page
+        .getByRole("button", { name: "Play match", exact: true })
+        .click();
+      await expect(page.getByText(/PLAYBACK HEAD · STATE [1-9]/)).toBeVisible();
+      await page.getByRole("button", { name: "Pause", exact: true }).click();
+      await expect(score.locator("strong")).toHaveText(initialScore);
+      await expect(score).not.toContainText("Loading");
+      await expect(page.locator(".probabilities")).toHaveText(probabilities, {
+        useInnerText: true,
+      });
+      expect(await score.boundingBox()).toEqual(before);
+      expect(
+        await page
+          .locator(".fixture h2")
+          .evaluateAll((nodes) =>
+            nodes.map((n) => n.getBoundingClientRect().x),
+          ),
+      ).toEqual(teams);
+    } finally {
+      release();
+    }
+    await expect(page.locator(".score-source")).not.toHaveText(
+      "Confirmed state 0",
+    );
+    await expect(page.locator(".bottom-grid > section").first()).toContainText(
+      /continuations · state [1-9]/,
+    );
+    // A backwards seek must not reuse a later score or forecast while pending.
+    let releaseZero!: () => void;
+    const zeroGate = new Promise<void>((resolve) => {
+      releaseZero = resolve;
+    });
+    await page.route(
+      /\/api\/matches\/26\/(states|forecasts)\/0$/,
+      async (route) => {
+        const response = await route.fetch();
+        await zeroGate;
+        await route.fulfill({ response });
+      },
+    );
+    try {
+      await page.getByLabel("Historical match position").fill("0");
+      await expect(score.locator("strong")).toHaveText("— : —");
+      await expect(page.locator(".probabilities")).toHaveCount(0);
+      expect(await score.boundingBox()).toEqual(before);
+    } finally {
+      releaseZero();
+    }
+    await expect(page.locator(".score-source")).toHaveText("Confirmed state 0");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
