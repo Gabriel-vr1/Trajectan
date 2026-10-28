@@ -103,7 +103,8 @@ function App() {
     [events, setEvents] = useState<Event[]>([]),
     [head, setHead] = useState(0),
     [cursor, setCursor] = useState<number | null>(null),
-    [playing, setPlaying] = useState(false);
+    [playing, setPlaying] = useState(false),
+    [playbackStart, setPlaybackStart] = useState(0);
   const [state, setState] = useState<State | null>(null),
     [fc, setFc] = useState<Forecast | null>(null),
     [history, setHistory] = useState<Forecast[]>([]),
@@ -128,7 +129,8 @@ function App() {
     fixture = useRef(seed),
     requested = useRef(new Set<string>()),
     selection = useRef(seq),
-    operation = useRef(0);
+    operation = useRef(0),
+    playbackStream = useRef<EventSource | null>(null);
   fixture.current = seed;
   selection.current = seq;
   useEffect(() => {
@@ -167,24 +169,30 @@ function App() {
   }, [busy]);
   useEffect(() => {
     if (!playing || !events.length) return;
-    const stream = new EventSource(`/api/matches/${seed}/stream?after=${head}`);
+    const stream = new EventSource(
+      `/api/matches/${seed}/stream?after=${playbackStart}`,
+    );
+    playbackStream.current = stream;
     stream.addEventListener("match", (ev) => {
+      if (playbackStream.current !== stream) return;
       const e: Event = JSON.parse((ev as MessageEvent).data);
       setHead((old) => Math.max(old, e.sequence));
       if (e.kind === "fulltime") {
-        setPlaying(false);
-        stream.close();
+        stopPlayback();
       }
     });
     stream.onerror = () => {
-      stream.close();
-      setPlaying(false);
+      if (playbackStream.current !== stream) return;
+      stopPlayback();
       setError(
         "Playback connection interrupted. Press Play to resume from the last event.",
       );
     };
-    return () => stream.close();
-  }, [playing, seed, events.length]);
+    return () => {
+      if (playbackStream.current === stream) playbackStream.current = null;
+      stream.close();
+    };
+  }, [playing, playbackStart, seed, events.length]);
   useEffect(() => {
     let active = true;
     if (!events.length) return;
@@ -365,9 +373,25 @@ function App() {
     a.click();
     URL.revokeObjectURL(url);
   }
-  function seek(n: number) {
-    setCursor(n);
+  function stopPlayback() {
+    playbackStream.current?.close();
+    playbackStream.current = null;
     setPlaying(false);
+  }
+  function seek(n: number) {
+    stopPlayback();
+    setCursor(n);
+  }
+  function play() {
+    if (playing) {
+      stopPlayback();
+      return;
+    }
+    // Promote the selected checkpoint before opening one stream from it.
+    setHead(seq);
+    setPlaybackStart(seq);
+    setCursor(null);
+    setPlaying(true);
   }
   const shownEvents = events.slice(0, seq),
     selected = shownEvents.at(-1),
@@ -504,20 +528,17 @@ function App() {
         <div className="playback">
           <button
             className="primary"
-            disabled={!events.length || head >= events.length}
-            onClick={() => {
-              setCursor(null);
-              setPlaying(!playing);
-            }}
+            disabled={!events.length || (!playing && seq >= events.length)}
+            onClick={play}
           >
             {playing ? "Pause" : "Play match"}
           </button>
           <button
             disabled={!events.length}
             onClick={() => {
-              setPlaying(false);
+              stopPlayback();
               setCursor(null);
-              setHead(Math.min(events.length, head + 1));
+              setHead(Math.min(events.length, seq + 1));
             }}
           >
             Step →
@@ -535,8 +556,8 @@ function App() {
           </span>
           <button
             onClick={() => {
+              stopPlayback();
               setCursor(null);
-              setPlaying(false);
             }}
           >
             Return to live
